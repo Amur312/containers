@@ -111,7 +111,7 @@ namespace s21
         {
             if (head == nullptr)
             {
-                throw std::runtime_error("Невозможно получить первый элемент пустого списка");
+                throw std::runtime_error("Ошибка: попытка получить первый элемент пустого списка");
             }
             return head->data;
         }
@@ -128,7 +128,7 @@ namespace s21
         {
             if (tail == nullptr)
             {
-                throw std::runtime_error("Невозможно получить последний элемент пустого списка");
+                throw std::runtime_error("Ошибка: попытка получить последний элемент пустого списка");
             }
             return tail->data;
         }
@@ -214,7 +214,7 @@ namespace s21
         {
             if (tail == nullptr)
             {
-                throw std::range_error("Список пуст");
+                throw std::range_error("Ошибка: попытка удалить элемент из пустого списка с конца");
             }
             Node *nodeToDelit = tail;
             tail = tail->prev;
@@ -241,7 +241,7 @@ namespace s21
         {
             if (head == nullptr)
             {
-                throw std::range_error("Список пуст");
+                throw std::range_error("Ошибка: попытка удалить элемент из пустого списка с начала");
             }
             Node *nodeToDelete = head;
             head = head->next;
@@ -256,6 +256,95 @@ namespace s21
             delete nodeToDelete;
             list_size--;
         }
+        /**
+         * Класс iterator представляет итератор, который может использоваться для обхода элементов списка в прямом порядке.
+         * Итератор хранит указатель на текущий узел списка.
+         */
+        class iterator
+        {
+        private:
+            Node *current; // Указатель на текущий узел списка.
+
+        public:
+            // Конструктор итератора, принимающий указатель на узел списка.
+            iterator(Node *node) : current(node) {}
+
+            // Оператор разыменования, возвращающий ссылку на данные текущего узла.
+            T &operator*()
+            {
+                return current->data;
+            }
+
+            // Оператор инкремента, перемещающий итератор к следующему узлу списка.
+            iterator &operator++()
+            {
+                current = current->next;
+                return *this;
+            }
+
+            // Оператор декремента, перемещающий итератор к предыдущему узлу списка.
+            iterator &operator--()
+            {
+                current = current->prev;
+                return *this;
+            }
+
+            // Операторы сравнения, проверяющие равенство или неравенство двух итераторов.
+            bool operator==(const iterator &other) const
+            {
+                return current == other.current;
+            }
+
+            bool operator!=(const iterator &other) const
+            {
+                return current != other.current;
+            }
+        };
+
+        /**
+         * Класс reverse_iterator представляет итератор, который может использоваться для обхода элементов списка в обратном порядке.
+         * Обратный итератор также хранит указатель на текущий узел списка, но операторы инкремента и декремента работают в обратном направлении.
+         */
+        class reverse_iterator
+        {
+        private:
+            Node *current; // Указатель на текущий узел списка.
+
+        public:
+            // Конструктор обратного итератора, принимающий указатель на узел списка.
+            reverse_iterator(Node *node) : current(node) {}
+
+            // Оператор разыменования, возвращающий ссылку на данные текущего узла.
+            T &operator*()
+            {
+                return current->data;
+            }
+
+            // Оператор инкремента, перемещающий обратный итератор к предыдущему узлу списка.
+            reverse_iterator &operator++()
+            {
+                current = current->prev;
+                return *this;
+            }
+
+            // Оператор декремента, перемещающий обратный итератор к следующему узлу списка.
+            reverse_iterator &operator--()
+            {
+                current = current->next;
+                return *this;
+            }
+
+            // Операторы сравнения, проверяющие равенство или неравенство двух обратных итераторов.
+            bool operator==(const reverse_iterator &other) const
+            {
+                return current == other.current;
+            }
+
+            bool operator!=(const reverse_iterator &other) const
+            {
+                return current != other.current;
+            }
+        };
     };
 
 } // namespace s21
