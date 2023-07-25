@@ -8,7 +8,7 @@ namespace s21 {
 template <typename T>
 class ListIterator {
 public:
-    using Node = typename list<T>::Node; // assuming Node is defined in list
+    using Node = typename list<T>::Node; 
     using value_type = T;
     using reference = T&;
 

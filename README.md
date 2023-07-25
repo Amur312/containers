@@ -1,2 +1,2 @@
 # containers
-еализация библиотеки s21_containers.h.
+Implementation of the s21_containers.h. library. List of classes: list, map, queue, set, stack, vector, array, multiset.
