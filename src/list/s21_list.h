@@ -50,6 +50,54 @@ namespace s21
         Node *tail;
         size_t list_size;
     };
+
+    class ListIterator
+    {
+    public:
+        ListIterator() : current_node(nullptr) {}
+        ListIterator(Node *current) : current_node(current) {}
+
+        reference operator*()
+        {
+            if (!current_node)
+            {
+                throw std::invalid_argument("Invalid access. Iterator is pointing to end of the list or list is empty.");
+            }
+            return current_node->value;
+        }
+
+        ListIterator &operator++()
+        {
+            if (!current_node)
+            {
+                throw std::runtime_error("Cannot increment end iterator");
+            }
+            current_node = current_node->next;
+            return *this;
+        }
+        // постфиксная
+        ListIterator &operator++(int)
+        {
+            ListIterator iterator = *this;
+            ++(*this);
+            return iterator;
+        }
+
+        ListIterator &operator--()
+        {
+            if (current_node->prev != nullptr)
+            {
+                current_node = current_node->prev;
+                return *this;
+            }
+            else
+            {
+                throw std::out_of_range("Cannot decrement iterator at beginning of list");
+            }
+        }
+
+    private:
+    }
 }
 
 #endif S21_LIST_H

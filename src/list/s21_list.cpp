@@ -39,25 +39,26 @@ namespace s21
     template <typename T>
     void list<T>::push_back(const value_type &value)
     {
-        // Создаем новый узел
         Node *newNode = new Node;
         newNode->value = value;
         newNode->next = nullptr;
-        // Проверяем, пуст ли список
         if (head == nullptr)
         {
-            // Если список пуст, то новый узел становится первым узлом
+
             newNode->prev = nullptr;
             head = newNode;
             tail = newNode;
         }
         else
-        {   
-            // Если список не пуст, то добавляем новый узел в конец списка
+        {
+
             newNode->prev = tail;
             tail->next = newNode;
             tail = newNode;
         }
         list_size++;
     }
+
+    // методы для итерирования по элементам класса
+
 }
