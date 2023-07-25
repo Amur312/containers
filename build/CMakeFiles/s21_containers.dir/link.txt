@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/s21_containers.dir/tests/test_list.cpp.o -o s21_containers  -lgtest -lpthread 

@@ -1,3 +1,0 @@
-/home/amur/Рабочий стол/containers/containers/build/CMakeFiles/s21_containers.dir
-/home/amur/Рабочий стол/containers/containers/build/CMakeFiles/edit_cache.dir
-/home/amur/Рабочий стол/containers/containers/build/CMakeFiles/rebuild_cache.dir

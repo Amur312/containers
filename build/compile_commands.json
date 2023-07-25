@@ -1,8 +1,0 @@
-[
-{
-  "directory": "/home/amur/Рабочий стол/containers/containers/build",
-  "command": "/usr/bin/g++ -I/usr/include/gtest -I\"/home/amur/Рабочий стол/containers/containers/src/tests\" -g -std=gnu++14 -o CMakeFiles/s21_containers.dir/tests/test_list.cpp.o -c \"/home/amur/Рабочий стол/containers/containers/tests/test_list.cpp\"",
-  "file": "/home/amur/Рабочий стол/containers/containers/tests/test_list.cpp",
-  "output": "CMakeFiles/s21_containers.dir/tests/test_list.cpp.o"
-}
-]
