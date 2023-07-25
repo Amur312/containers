@@ -10,6 +10,13 @@ namespace s21
     class list
     {
     public:
+        struct Node
+        {
+            value_type value;
+            Node *next;
+            Node *prev;
+        };
+
         using value_type = T;
         using reference = T &;
         using const_reference = const T &;
@@ -39,65 +46,12 @@ namespace s21
         size_t size() const;
 
     private:
-        struct Node
-        {
-            value_type value;
-            Node *next;
-            Node *prev;
-        };
-
         Node *head;
         Node *tail;
         size_t list_size;
     };
 
-    class ListIterator
-    {
-    public:
-        ListIterator() : current_node(nullptr) {}
-        ListIterator(Node *current) : current_node(current) {}
-
-        reference operator*()
-        {
-            if (!current_node)
-            {
-                throw std::invalid_argument("Invalid access. Iterator is pointing to end of the list or list is empty.");
-            }
-            return current_node->value;
-        }
-
-        ListIterator &operator++()
-        {
-            if (!current_node)
-            {
-                throw std::runtime_error("Cannot increment end iterator");
-            }
-            current_node = current_node->next;
-            return *this;
-        }
-        // постфиксная
-        ListIterator &operator++(int)
-        {
-            ListIterator iterator = *this;
-            ++(*this);
-            return iterator;
-        }
-
-        ListIterator &operator--()
-        {
-            if (current_node->prev != nullptr)
-            {
-                current_node = current_node->prev;
-                return *this;
-            }
-            else
-            {
-                throw std::out_of_range("Cannot decrement iterator at beginning of list");
-            }
-        }
-
-    private:
-    }
+   
 }
 
 #endif S21_LIST_H
