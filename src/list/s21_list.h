@@ -10,16 +10,16 @@ namespace s21
     class list
     {
     public:
+        using value_type = T;
+        using reference = T &;
+        using const_reference = const T &;
+
         struct Node
         {
             value_type value;
             Node *next;
             Node *prev;
         };
-
-        using value_type = T;
-        using reference = T &;
-        using const_reference = const T &;
 
     public:
         list();
@@ -28,30 +28,21 @@ namespace s21
         list(const list<T> &other);
         ~list();
 
-        class iterator
-        {
-        };
+        class ListIterator;
+        class ListConstIterator;
 
-        iterator begin();
-        iterator end();
-
-        void push_back(const value_type &value);
-        void push_front(const value_type &value);
+        void push_back(const_reference value);
+        void push_front(const_reference value);
         void pop_back();
-        void pop_front();
-        void insert(iterator pos, const value_type &value);
-        void erase(iterator pos);
+
+
         void clear();
-        bool empty() const;
-        size_t size() const;
 
     private:
         Node *head;
         Node *tail;
         size_t list_size;
     };
-
-   
 }
 
-#endif S21_LIST_H
+#endif

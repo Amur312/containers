@@ -28,16 +28,22 @@ namespace s21
     list<T>::list(const list<T> &other)
         : head(nullptr), tail(nullptr), list_size(0)
     {
-        for (auto it = other.begin(); it != other.end(); ++it)
+        for (Node *node = other.head; node != nullptr; node = node->next)
         {
-            push_back(*it);
+            push_back(node->value);
         }
+    }
+
+    template <typename T>
+    list<T>::~list()
+    {
+        clear();
     }
 
     // методы для изменения контейнера
 
     template <typename T>
-    void list<T>::push_back(const value_type &value)
+    void list<T>::push_back(const_reference value)
     {
         Node *newNode = new Node;
         newNode->value = value;
@@ -59,6 +65,56 @@ namespace s21
         list_size++;
     }
 
+    template <typename T>
+    void list<T>::push_front(const_reference value)
+    {
+        Node *newNode = new Node;
+        newNode->value = value;
+        newNode->next = head;
+        newNode->prev = nullptr;
+        if (head != nullptr){
+            head -> prev = newNode;
+        }
+        head = newNode;
+        if(tail == nullptr){
+            tail = newNode;
+        }
+        list_size++;
+    }
+
+    template <typename T>
+    void list<T>::pop_back(){
+        if(head == nullptr){
+            return;
+        }else if(tail == head){
+            delete head;
+            head  = tail = nullptr;
+        }else{
+            Node *newTail = tail->prev;
+            delete tail;
+            tail = newTail;
+            tail->next = nullptr;
+            list_size--;
+        }
+    }
+
+
+
     // методы для итерирования по элементам класса
 
+    // Доп методы
+    template <typename T>
+    void list<T>::clear()
+    {
+        Node *current = head;
+        while (current != nullptr)
+        {
+            Node *next = current->next;
+            delete current;
+            current = next;
+        }
+        head = nullptr;
+        tail = nullptr;
+        list_size = 0;
+    }
 }
