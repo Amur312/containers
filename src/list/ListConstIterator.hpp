@@ -1,5 +1,5 @@
-#ifndef LIST_ITERATOR_H
-#define LIST_ITERATOR_H
+#ifndef LIST_CONST_ITERATOR_H
+#define LIST_CONST_ITERATOR_H
 
 #include "s21_list.h"
 
@@ -7,19 +7,19 @@ namespace s21
 {
 
     template <typename T>
-    class ListIterator
+    class ListConstIterator
     {
     public:
         using Node = typename list<T>::Node;
         using value_type = T;
-        using reference = T &;
-        using iterator = ListIterator<T>;
+        using reference = const T &;
+        using iterator = ListConstIterator<T>;
 
-        ListIterator() : current_node(nullptr) {}
-        ListIterator(Node *current) : current_node(current) {}
-        ListIterator(const ListIterator &other) : current_node(other.current_node) {}
+        ListConstIterator() : current_node(nullptr) {}
+        ListConstIterator(Node *current) : current_node(current) {}
+        ListConstIterator(const ListConstIterator &other) : current_node(other.current_node) {}
 
-        reference operator*()
+        reference operator*() const
         {
             if (!current_node)
             {
@@ -28,7 +28,7 @@ namespace s21
             return current_node->value;
         }
 
-        ListIterator &operator++()
+        ListConstIterator &operator++()
         {
             if (!current_node)
             {
@@ -38,14 +38,14 @@ namespace s21
             return *this;
         }
 
-        ListIterator operator++(int)
+        ListConstIterator operator++(int)
         {
-            ListIterator iterator = *this;
+            ListConstIterator iterator = *this;
             ++(*this);
             return iterator;
         }
 
-        ListIterator &operator--()
+        ListConstIterator &operator--()
         {
             if (!current_node || !current_node->prev)
             {
@@ -55,22 +55,22 @@ namespace s21
             return *this;
         }
 
-        ListIterator operator--(int)
+        ListConstIterator operator--(int)
         {
-            ListIterator iterator = *this;
+            ListConstIterator iterator = *this;
             --(*this);
             return iterator;
         }
 
-        bool operator==(const ListIterator &other) const
+        bool operator==(const ListConstIterator &other) const
         {
             return current_node == other.current_node;
         }
-        bool operator!=(const ListIterator &other) const
+        bool operator!=(const ListConstIterator &other) const
         {
             return current_node != other.current_node;
         }
-        ListIterator &operator=(const ListIterator &other)
+        ListConstIterator &operator=(const ListConstIterator &other)
         {
             if (this != &other)
             {
@@ -78,7 +78,7 @@ namespace s21
             }
             return *this;
         }
-        ListIterator operator+(const size_t step) const
+        ListConstIterator operator+(const size_t step) const
         {
             Node *traversedNode = current_node;
             for (size_t i = 0; i < step; i++)
@@ -89,9 +89,9 @@ namespace s21
                 }
                 traversedNode = traversedNode->next;
             }
-            return ListIterator(traversedNode);
+            return ListConstIterator(traversedNode);
         }
-        ListIterator operator-(const size_t step) const
+        ListConstIterator operator-(const size_t step) const
         {
             Node *traversedNode = current_node;
             for (size_t i = 0; i < step; i++)
@@ -102,15 +102,15 @@ namespace s21
                 }
                 traversedNode = traversedNode->prev;
             }
-            return ListIterator(traversedNode);
+            return ListConstIterator(traversedNode);
         }
 
-        iterator begin()
+        iterator begin() const
         {
             return iterator(head);
         }
 
-        iterator end()
+        iterator end() const
         {
             return iterator(nullptr);
         }
@@ -121,4 +121,4 @@ namespace s21
 
 } // namespace s21
 
-#endif // LIST_ITERATOR_H
+#endif // LIST_CONST_ITERATOR_H

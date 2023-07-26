@@ -72,33 +72,63 @@ namespace s21
         newNode->value = value;
         newNode->next = head;
         newNode->prev = nullptr;
-        if (head != nullptr){
-            head -> prev = newNode;
+        if (head != nullptr)
+        {
+            head->prev = newNode;
         }
         head = newNode;
-        if(tail == nullptr){
+        if (tail == nullptr)
+        {
             tail = newNode;
         }
         list_size++;
     }
 
     template <typename T>
-    void list<T>::pop_back(){
-        if(head == nullptr){
-            return;
-        }else if(tail == head){
-            delete head;
-            head  = tail = nullptr;
-        }else{
-            Node *newTail = tail->prev;
-            delete tail;
-            tail = newTail;
-            tail->next = nullptr;
-            list_size--;
+    void list<T>::pop_back()
+    {
+        if (head == nullptr)
+        {
+            throw std::out_of_range("list is empty");
+        }
+        else
+        {
+            Node *node_to_remove = tail;
+            if (head == tail)
+                head = nullptr;
+            tail = node_to_remove->prev;
+            remove_node(node_to_remove);
         }
     }
 
+    template <typename T>
+    void list<T>::pop_front()
+    {
+        if (head == nullptr)
+        {
+            throw std::out_of_range("list is empty");
+        }
+        else
+        {
+            Node *node_to_remove = head;
+            head = node_to_remove->next;
+            if (tail == node_to_remove)
+                tail = nullptr;
+            remove_node(node_to_remove);
+        }
+    }
 
+    template <typename T>
+    size_t list<T>::size() const
+    {
+        return list_size;
+    }
+
+    template <typename T>
+    bool list<T>::empty() const
+    {
+        return size() == 0;
+    }
 
     // методы для итерирования по элементам класса
 
@@ -117,4 +147,62 @@ namespace s21
         tail = nullptr;
         list_size = 0;
     }
+
+    void list<T>::remove_node(Node *node)
+    {
+        if (node->prev != nullptr)
+            node->prev->next = node->next;
+        if (node->next != nullptr)
+            node->next->prev = node->prev;
+        delete node;
+        list_size--;
+    }
+    
+    template <typename T>
+typename list<T>::iterator list<T>::insert(iterator pos, const T& value) {
+    Node* newNode = new Node;
+    newNode->value = value;
+    
+    if (pos.current_node == head) {
+        newNode->next = head;
+        newNode->prev = nullptr;
+        head->prev = newNode;
+        head = newNode;
+    } else {
+        newNode->next = pos.current_node;
+        newNode->prev = pos.current_node->prev;
+        pos.current_node->prev->next = newNode;
+        pos.current_node->prev = newNode;
+    }
+    
+    list_size++;
+    return iterator(newNode);
+}
+
+template <typename T>
+typename list<T>::iterator list<T>::erase(iterator pos) {
+    if (pos.current_node == head) {
+        head = head->next;
+        delete pos.current_node;
+        if (head) {
+            head->prev = nullptr;
+        }
+    } else if (pos.current_node == tail) {
+        tail = tail->prev;
+        delete pos.current_node;
+        if (tail) {
+            tail->next = nullptr;
+        }
+    } else {
+        pos.current_node->prev->next = pos.current_node->next;
+        pos.current_node->next->prev = pos.current_node->prev;
+        Node* nextNode = pos.current_node->next;
+        delete pos.current_node;
+        return iterator(nextNode);
+    }
+
+    list_size--;
+    return iterator(nullptr);
+}
+
 }

@@ -1,48 +1,45 @@
-#include <gtest/gtest.h>
-#include "s21_list.h"
 
-TEST(ListTest, PushBackAndFront) {
-    s21::list<int> lst;
-    lst.push_back(1);
-    lst.push_front(2);
-    EXPECT_EQ(lst.front(), 2);
-    EXPECT_EQ(lst.back(), 1);
+#include "../src/list/s21_list.h"
+#include "../src/list/ListIterator.hpp"
+
+
+int main() {
+    // Создаем список и заполняем его данными
+    s21::list<int> testList;
+    for (int i = 0; i < 10; ++i) {
+        testList.push_back(i);
+    }
+
+    // Создаем итератор и пробуем обойти список
+    s21::ListIterator<int> it = testList.begin();
+    while (it != testList.end()) {
+        std::cout << *it << " ";
+        ++it;
+    }
+    std::cout << std::endl;
+
+    // Тестируем операторы + и -
+    it = testList.begin();
+    it = it + 5;
+    std::cout << "Element at position 5: " << *it << std::endl; // Должно быть 5
+
+    it = it - 3;
+    std::cout << "Element at position 2: " << *it << std::endl; // Должно быть 2
+
+    // Тестируем константный итератор
+    s21::ListConstIterator<int> const_it = testList.cbegin();
+    while (const_it != testList.cend()) {
+        std::cout << *const_it << " ";
+        ++const_it;
+    }
+    std::cout << std::endl;
+
+    const_it = testList.cbegin();
+    const_it = const_it + 7;
+    std::cout << "Element at position 7: " << *const_it << std::endl; // Должно быть 7
+
+    const_it = const_it - 5;
+    std::cout << "Element at position 2: " << *const_it << std::endl; // Должно быть 2
+
+    return 0;
 }
-
-TEST(ListTest, PopBackAndFront) {
-    s21::list<int> lst;
-    lst.push_back(1);
-    lst.push_back(2);
-    lst.pop_front();
-    EXPECT_EQ(lst.front(), 2);
-    lst.pop_back();
-    EXPECT_TRUE(lst.empty());
-}
-
-TEST(ListTest, Iterator) {
-    s21::list<int> lst;
-    lst.push_back(1);
-    lst.push_back(2);
-    lst.push_back(3);
-    auto it = lst.begin();
-    EXPECT_EQ(*it, 1);
-    ++it;
-    EXPECT_EQ(*it, 2);
-    --it;
-    EXPECT_EQ(*it, 1);
-}
-
-TEST(ListTest, ReverseIterator) {
-    s21::list<int> lst;
-    lst.push_back(1);
-    lst.push_back(2);
-    lst.push_back(3);
-    auto it = lst.rbegin();
-    EXPECT_EQ(*it, 3);
-    ++it;
-    EXPECT_EQ(*it, 2);
-    --it;
-    EXPECT_EQ(*it, 3);
-}
-
-

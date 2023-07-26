@@ -34,10 +34,15 @@ namespace s21
         void push_back(const_reference value);
         void push_front(const_reference value);
         void pop_back();
-
-
+        void pop_front();
+        void remove_node(Node* node);
         void clear();
+        size_t size() const;
+        bool empty() const;
 
+
+        iterator insert(iterator pos, const T& value);
+        iterator erase(iterator pos);
     private:
         Node *head;
         Node *tail;
