@@ -1,6 +1,10 @@
 {
     "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
-        "stdexcept": "cpp"
+        "stdexcept": "cpp",
+        "iostream": "cpp",
+        "cmath": "cpp",
+        "*.tpp": "cpp",
+        "ostream": "cpp"
     }
 }

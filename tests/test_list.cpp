@@ -1,6 +1,6 @@
 
 #include "../src/list/s21_list.h"
-#include "../src/list/ListIterator.hpp"
+
 
 
 int main() {
@@ -11,7 +11,7 @@ int main() {
     }
 
     // Создаем итератор и пробуем обойти список
-    s21::ListIterator<int> it = testList.begin();
+    s21::list<int>::iterator it = testList.begin();
     while (it != testList.end()) {
         std::cout << *it << " ";
         ++it;
@@ -27,7 +27,7 @@ int main() {
     std::cout << "Element at position 2: " << *it << std::endl; // Должно быть 2
 
     // Тестируем константный итератор
-    s21::ListConstIterator<int> const_it = testList.cbegin();
+    s21::list<int>::const_iterator const_it = testList.cbegin();
     while (const_it != testList.cend()) {
         std::cout << *const_it << " ";
         ++const_it;
