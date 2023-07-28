@@ -1,37 +1,94 @@
 #ifndef S21_LIST_H
 #define S21_LIST_H
-#include <cmath>
+#include <initializer_list>
 #include <iostream>
 #include <limits>
-#include <stdexcept>
-
 
 namespace s21
 {
     template <typename T>
-    class list
+    class List
     {
     public:
-        using value_type = T;
-        using reference = T &;
         using const_reference = const T &;
+        using size_type = size_t;
+        using reference = T &;
+        using value_type = T;
 
-        struct Node
+    private:
+        struct Node;
+
+    public:
+        class ConstListIterator
         {
-            value_type value;
-            Node *next;
-            Node *prev;
-        };
-        class ListIterator;
-        class ListConstIterator;
+        public:
+            /**
+             * @brief Конструктор по умолчанию. Инициализирует поле _node как nullptr.
+             */
+            ConstListIterator() noexcept { _node = nullptr; }
 
-        using iterator = ListIterator;
-        using const_iterator = ListConstIterator;
-        list();
-        list(size_t n);
-        list(const std::initializer_list<value_type> &items);
-        list(const list<T> &other);
-        ~list();
+            /**
+             * @brief Конструктор, который принимает указатель на Node и инициализирует _node этим значением.
+             *
+             * @param node Указатель на узел, который будет использоваться для инициализации _node.
+             */
+            ConstListIterator(Node *node) noexcept : _node(node) {}
+
+            /**
+             * @brief Конструктор копирования, который принимает другой ConstListIterator и копирует его _node.
+             *
+             * @param other Другой ConstListIterator, который будет использоваться для копирования _node.
+             */
+            ConstListIterator(const ConstListIterator &other) noexcept : _node(other._node) {}
+
+            /**
+             * @brief Конструктор перемещения, который принимает другой ConstListIterator и "перемещает" его _node в текущий объект, затем устанавливает _node другого объекта в nullptr.
+             *
+             * @param other Другой ConstListIterator, который будет использоваться для перемещения _node.
+             */
+            ConstListIterator(ConstListIterator &&other) noexcept
+            {
+                _node = other._node;
+                other._node = nullptr;
+            }
+            ~ConstListIterator() noexcept {}
+
+            const_reference operator*() noexcept;
+
+            bool operator==(const ConstListIterator other) const noexcept;
+
+            bool operator!=(const ConstListIterator &other) const noexcept;
+            ConstListIterator operator++() noexcept;
+            ConstListIterator operator++(int) noexcept;
+            ConstListIterator operator--() noexcept;
+            ConstListIterator operator--(int) noexcept;
+
+        public:
+            Node *_node; // указатель на текущий узел
+            reference error_value = 0;
+        } using const_iterator = List<T>::ConstListIterator;
+
+        class ListIterator : public ConstListIterator
+        {
+            // Используем конструкторы базового класса
+            using ConstListIterator::ConstListIterator;
+            // Перегружаем оператор разыменования, чтобы он возвращал неконстантную ссылку
+            reference operator*() noexcept
+            {
+                if (this->_node)
+                {
+                    return this->_node->value_;
+                }
+            }
+            return this->error_value;
+
+        } using iterator = List<T>::ListIterator;
+
+        List() noexcept;
+        List(size_type n);
+        List(const std::initializer_list<value_type> &items);
+        List(const List<T> &other);
+        ~List();
 
         void push_back(const_reference value);
         void push_front(const_reference value);
@@ -39,226 +96,45 @@ namespace s21
         void pop_front();
         void remove_node(Node *node);
         void clear();
-        size_t size() const;
-        bool empty() const;
-        const_iterator cbegin() const { return const_iterator(head); }
-        const_iterator cend() const { return const_iterator(nullptr); }
-
-        iterator begin() { return iterator(head); }
-        iterator end() { return iterator(nullptr); }
-
-        iterator insert(iterator pos, const T &value);
-        iterator erase(iterator pos);
-
-        class ListIterator
-        {
-        public:
-            using Node = typename list<T>::Node;
-            using value_type = T;
-            using reference = T &;
-            using iterator = ListIterator;
-
-            ListIterator() : current_node(nullptr) {}
-            ListIterator(Node *current) : current_node(current) {}
-            ListIterator(const ListIterator &other) : current_node(other.current_node) {}
-
-            reference operator*()
-            {
-                if (!current_node)
-                {
-                    throw std::invalid_argument("Invalid access. Iterator is pointing to end of the list or list is empty.");
-                }
-                return current_node->value;
-            }
-
-            ListIterator &operator++()
-            {
-                if (!current_node)
-                {
-                    throw std::runtime_error("Cannot increment end iterator");
-                }
-                current_node = current_node->next;
-                return *this;
-            }
-
-            ListIterator operator++(int)
-            {
-                ListIterator iterator = *this;
-                ++(*this);
-                return iterator;
-            }
-
-            ListIterator &operator--()
-            {
-                if (!current_node || !current_node->prev)
-                {
-                    throw std::out_of_range("Cannot decrement iterator at beginning of list");
-                }
-                current_node = current_node->prev;
-                return *this;
-            }
-
-            ListIterator operator--(int)
-            {
-                ListIterator iterator = *this;
-                --(*this);
-                return iterator;
-            }
-
-            bool operator==(const ListIterator &other) const
-            {
-                return current_node == other.current_node;
-            }
-            bool operator!=(const ListIterator &other) const
-            {
-                return current_node != other.current_node;
-            }
-            ListIterator &operator=(const ListIterator &other)
-            {
-                if (this != &other)
-                {
-                    current_node = other.current_node;
-                }
-                return *this;
-            }
-            ListIterator operator+(const size_t step) const
-            {
-                Node *traversedNode = current_node;
-                for (size_t i = 0; i < step; i++)
-                {
-                    if (!traversedNode || !traversedNode->next)
-                    {
-                        throw std::out_of_range("Iterator cannot move past the end of the list");
-                    }
-                    traversedNode = traversedNode->next;
-                }
-                return ListIterator(traversedNode);
-            }
-            ListIterator operator-(const size_t step) const
-            {
-                Node *traversedNode = current_node;
-                for (size_t i = 0; i < step; i++)
-                {
-                    if (!traversedNode || !traversedNode->prev)
-                    {
-                        throw std::out_of_range("Iterator cannot move past the beginning of the list");
-                    }
-                    traversedNode = traversedNode->prev;
-                }
-                return ListIterator(traversedNode);
-            }
-
-        private:
-            Node *current_node;
-        };
-        class ListConstIterator
-        {
-        public:
-            using Node = typename list<T>::Node;
-            using value_type = T;
-            using reference = const T &;
-            using iterator = ListConstIterator;
-
-            ListConstIterator() : current_node(nullptr) {}
-            ListConstIterator(Node *current) : current_node(current) {}
-            ListConstIterator(const ListConstIterator &other) : current_node(other.current_node) {}
-
-            reference operator*() const
-            {
-                if (!current_node)
-                {
-                    throw std::invalid_argument("Invalid access. Iterator is pointing to end of the list or list is empty.");
-                }
-                return current_node->value;
-            }
-
-            ListConstIterator &operator++()
-            {
-                if (!current_node)
-                {
-                    throw std::runtime_error("Cannot increment end iterator");
-                }
-                current_node = current_node->next;
-                return *this;
-            }
-
-            ListConstIterator operator++(int)
-            {
-                ListConstIterator iterator = *this;
-                ++(*this);
-                return iterator;
-            }
-
-            ListConstIterator &operator--()
-            {
-                if (!current_node || !current_node->prev)
-                {
-                    throw std::out_of_range("Cannot decrement iterator at beginning of list");
-                }
-                current_node = current_node->prev;
-                return *this;
-            }
-
-            ListConstIterator operator--(int)
-            {
-                ListConstIterator iterator = *this;
-                --(*this);
-                return iterator;
-            }
-
-            bool operator==(const ListConstIterator &other) const
-            {
-                return current_node == other.current_node;
-            }
-            bool operator!=(const ListConstIterator &other) const
-            {
-                return current_node != other.current_node;
-            }
-            ListConstIterator &operator=(const ListConstIterator &other)
-            {
-                if (this != &other)
-                {
-                    current_node = other.current_node;
-                }
-                return *this;
-            }
-            ListConstIterator operator+(const size_t step) const
-            {
-                Node *traversedNode = current_node;
-                for (size_t i = 0; i < step; i++)
-                {
-                    if (!traversedNode || !traversedNode->next)
-                    {
-                        throw std::out_of_range("Iterator cannot move past the end of the list");
-                    }
-                    traversedNode = traversedNode->next;
-                }
-                return ListConstIterator(traversedNode);
-            }
-            ListConstIterator operator-(const size_t step) const
-            {
-                Node *traversedNode = current_node;
-                for (size_t i = 0; i < step; i++)
-                {
-                    if (!traversedNode || !traversedNode->prev)
-                    {
-                        throw std::out_of_range("Iterator cannot move past the beginning of the list");
-                    }
-                    traversedNode = traversedNode->prev;
-                }
-                return ListConstIterator(traversedNode);
-            }
-
-        private:
-            Node *current_node;
-        };
+        
+        bool empty() const noexcept;
+        size_type size() const noexcept;
+        size_type max_size() const noexcept;
 
     private:
+        /*
+            Структура Node представляет собой узел в двусвязном списке. Она содержит три поля:
+
+            1. T value_: Это поле хранит значение узла. Тип T является шаблонным, что означает, что узел может хранить значения любого типа.
+
+            2. Node* next_: Это указатель на следующий узел в списке. Если этот узел является последним в списке, next_ будет равен nullptr.
+
+            3. Node* prev_: Это указатель на предыдущий узел в списке. Если этот узел является первым в списке, prev_ будет равен nullptr.
+
+            У структуры Node есть два конструктора:
+
+            1. Конструктор по умолчанию создает узел, в котором value_ равно 0, а next_ и prev_ равны nullptr.
+
+            2. Второй конструктор принимает ссылку на константу типа T и создает узел с value_, равным переданному значению, а next_ и prev_ равными nullptr.
+
+            Ключевое слово noexcept указывает, что конструкторы не выбрасывают исключений.
+
+            В двусвязном списке каждый узел связан с предыдущим и следующим узлами, что позволяет эффективно перемещаться в обоих направлениях по списку.
+        */
+        struct Node
+        {
+            Node() noexcept : next_(nullptr), prev_(nullptr), value_(0) {}
+            Node(const_reference t) noexcept
+                : value_(t), next_(nullptr), prev_(nullptr) {}
+            value_type value_;
+            Node *next_;
+            Node *prev_;
+        };
+
         Node *head;
         Node *tail;
         size_t list_size;
     };
-
 }
 #include "s21_list.tpp"
-#endif
+#endif // S21_LIST_H
