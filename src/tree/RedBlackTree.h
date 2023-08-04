@@ -1,0 +1,10 @@
+//
+// Created by amur on 03.08.23.
+//
+
+#ifndef CPP2_S21_CONTAINERS_1_REDBLACKTREE_H
+#define CPP2_S21_CONTAINERS_1_REDBLACKTREE_H
+
+class RedBlackTree {};
+
+#endif // CPP2_S21_CONTAINERS_1_REDBLACKTREE_H
