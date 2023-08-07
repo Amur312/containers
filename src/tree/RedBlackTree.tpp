@@ -1,29 +1,127 @@
+#ifndef REDBLACKTREE_TPP
+#define REDBLACKTREE_TPP
+
 #include "RedBlackTree.h"
+#include <stack>
 
 namespace s21 {
 
+template <typename Key, typename Value>
+struct RedBlackTree<Key, Value>::TreeIterator {
+  using iterator_category = std::forward_iterator_tag;
+  using difference_type = std::ptrdiff_t;
+  using value_type = Key;
+  using pointer = value_type *;
+  using reference = value_type &;
 
+  TreeIterator() = delete;
+
+  explicit TreeIterator(TreeNode *node) : node_(node) {}
+
+  reference operator*() const noexcept { return node_->key; }
+
+  TreeIterator &operator++() noexcept {
+    node_ = node_->next_node();
+    return *this;
+  }
+
+  TreeIterator operator++(int) noexcept {
+    TreeIterator tmp{node_};
+    ++(*this);
+    return tmp;
+  }
+
+  TreeIterator &operator--() noexcept {
+    node_ = node_->prev_node();
+    return *this;
+  }
+
+  TreeIterator operator--(int) noexcept {
+    TreeIterator tmp{node_};
+    --(*this);
+    return tmp;
+  }
+
+  bool operator==(const TreeIterator &other) const noexcept {
+    return node_ == other.node_;
+  }
+
+  bool operator!=(const TreeIterator &other) const noexcept {
+    return node_ != other.node_;
+  }
+
+  TreeNode *node_;
+};
 
 template <typename Key, typename Value>
-int RedBlackTree<Key, Value>::computeBlackHeight(const TreeNode *node) const noexcept {
-  if (node == nullptr) {
-    return 0;
+struct RedBlackTree<Key, Value>::TreeIteratorConst {
+  using iterator_category = std::forward_iterator_tag;
+  using difference_type = std::ptrdiff_t;
+  using value_type = Key;
+  using pointer = const value_type *;
+  using reference = const value_type &;
+
+  TreeIteratorConst() = delete;
+
+  explicit TreeIteratorConst(const TreeNode *node) : node_(node) {}
+
+  TreeIteratorConst(const TreeIteratorConst &it) : node_(it.node_) {}
+
+  reference operator*() const noexcept { return node_->key; }
+
+  TreeIteratorConst &operator++() noexcept {
+    node_ = node_->next_node();
+    return *this;
   }
-  int left_height = computeBlackHeight(node->left_);
-  int right_height = computeBlackHeight(node->right_);
-  int add = node->color_ == BLACK ? 1 : 0;
-  if (left_height == -1 || right_height == -1 ||
-      left_height != right_height) {
-    return -1;
-  } else {
-    return left_height + add;
+
+  TreeIteratorConst operator++(int) noexcept {
+    TreeIteratorConst tmp{node_};
+    ++(*this);
+    return tmp;
+  }
+
+  TreeIteratorConst &operator--() noexcept {
+    node_ = node_->prev_node();
+    return *this;
+  }
+
+  TreeIteratorConst operator--(int) noexcept {
+    TreeIteratorConst tmp{node_};
+    --(*this);
+    return tmp;
+  }
+
+  friend bool operator==(const TreeIteratorConst &it1,
+                         const TreeIteratorConst &it2) noexcept {
+    return it1.node_ == it2.node_;
+  }
+
+  friend bool operator!=(const TreeIteratorConst &it1,
+                         const TreeIteratorConst &it2) noexcept {
+    return it1.node_ != it2.node_;
+  }
+
+  const TreeNode *node_;
+};
+
+template <typename Key, typename Value>
+[[maybe_unused]] int RedBlackTree<Key, Value>::computeBlackHeight(
+    const TreeNode *node) const noexcept {
+  {
+    if (node == nullptr) {
+      return 0;
+    }
+    int left_height = computeBlackHeight(node->left_);
+    int right_height = computeBlackHeight(node->right_);
+    int add = node->color_ == BLACK ? 1 : 0;
+    if (left_height == -1 || right_height == -1 ||
+        left_height != right_height) {
+      return -1;
+    } else {
+      return left_height + add;
+    }
   }
 }
-
-
-
-
-
 template <typename Key, typename Value>
 void RedBlackTree<Key, Value>::eraseBalancing(TreeNode *deleted_node) noexcept {
   TreeNode *check_node = deleted_node;
@@ -313,7 +411,7 @@ RedBlackTree<Key, Value>::lowerBound(const_reference key) {
   TreeNode *result = cEnd().node_;
 
   while (start != nullptr) {
-    if (!key_comparator_(start->key_, key)) {
+    if (!key_comparator_(start->key, key)) {
       result = start;
       start = start->left_;
     } else {
@@ -418,50 +516,50 @@ RedBlackTree<Key, Value>::insertUnique(const key_type &key) {
 
 template <typename Key, typename Value>
 void RedBlackTree<Key, Value>::balanceInsert(TreeNode *node) {
-  while (node != head_->parent && node->parent->color == Color::RED) {
-    TreeNode *grandparent = node->parent->parent;
-    if (node->parent == grandparent->left) {
-      TreeNode *uncle = grandparent->right;
+  while (node != head_->parent_ && node->parent_->color == Color::RED) {
+    TreeNode *grandparent = node->parent_->parent_;
+    if (node->parent_ == grandparent->left_) {
+      TreeNode *uncle = grandparent->right_;
       if (uncle != nullptr && uncle->color == Color::RED) {
-        node->parent->color = Color::BLACK;
+        node->parent_->color = Color::BLACK;
         uncle->color = Color::BLACK;
         grandparent->color = Color::RED;
         node = grandparent;
       } else {
-        if (node == node->parent->right) {
-          node = node->parent;
+        if (node == node->parent_->right_) {
+          node = node->parent_;
           rotateLeft(node);
         }
-        node->parent->color = Color::BLACK;
+        node->parent_->color = Color::BLACK;
         grandparent->color = Color::RED;
         rotateRight(grandparent);
       }
     } else {
-      TreeNode *uncle = grandparent->left;
+      TreeNode *uncle = grandparent->left_;
       if (uncle != nullptr && uncle->color == Color::RED) {
-        node->parent->color = Color::BLACK;
+        node->parent_->color = Color::BLACK;
         uncle->color = Color::BLACK;
         grandparent->color = Color::RED;
         node = grandparent;
       } else {
-        if (node == node->parent->left) {
-          node = node->parent;
+        if (node == node->parent_->left_) {
+          node = node->parent_;
           rotateRight(node);
         }
-        node->parent->color = Color::BLACK;
+        node->parent_->color = Color::BLACK;
         grandparent->color = Color::RED;
         rotateLeft(grandparent);
       }
     }
   }
-  head_->parent->color = Color::BLACK;
+  head_->parent_->color = Color::BLACK;
 }
 
 template <typename Key, typename Value>
 typename RedBlackTree<Key, Value>::iterator
 RedBlackTree<Key, Value>::insert(const key_type &key) {
   TreeNode *newNode = new TreeNode(key);
-  auto insert_result = Insert(head_->parent_, newNode, false);
+  auto insert_result = insert(head_->parent_, newNode, false);
   if (!insert_result.second) {
     delete newNode;
   }
@@ -477,14 +575,14 @@ RedBlackTree<Key, Value>::insert(TreeNode *root, TreeNode *newNode,
 
   while (node != nullptr) {
     parent = node;
-    if (key_comparator_ * (newNode->key, node->key)) {
-      node = node->left;
+    if (key_comparator_  (newNode->key, node->key)) {
+      node = node->left_;
     } else {
       if (only_unique_values == false) {
-        node = node->right;
+        node = node->right_;
       } else {
         if (key_comparator_(node->key, newNode->key)) {
-          node = node->right;
+          node = node->right_;
         } else {
           return {iterator(node), false};
         }
@@ -493,17 +591,17 @@ RedBlackTree<Key, Value>::insert(TreeNode *root, TreeNode *newNode,
   }
 
   if (parent != nullptr) {
-    newNode->parent = parent;
+    newNode->parent_ = parent;
     if (key_comparator_(newNode->key, parent->key)) {
-      parent->left = newNode;
+      parent->left_ = newNode;
     } else {
-      parent->right = newNode;
+      parent->right_ = newNode;
     }
   } else {
 
     newNode->color = Color::BLACK;
-    newNode->parent = head_;
-    head_->parent = newNode;
+    newNode->parent_ = head_;
+    head_->parent_ = newNode;
   }
 
   ++size_;
@@ -650,167 +748,6 @@ void RedBlackTree<Key, Value>::initializeRootNode() noexcept {
   head_->right_ = head_;
 }
 
-template <typename Key, typename Value> struct TreeNode {
-  Key key;
-  Value value;
-  Color color;
-  TreeNode *parent_;
-  TreeNode *left_;
-  TreeNode *right_;
-
-  explicit TreeNode(const Key &key)
-      : key(key), color(Color::RED), parent_(nullptr), left_(nullptr),
-        right_(nullptr) {}
-
-  explicit TreeNode(Key &&key)
-      : key(std::move(key)), color(Color::RED), parent_(nullptr),
-        left_(nullptr), right_(nullptr) {}
-
-  TreeNode(const Key &key, Color color)
-      : key(key), color(color), parent_(nullptr), left_(nullptr),
-        right_(nullptr) {}
-
-  void to_default() noexcept {
-    left_ = nullptr;
-    right_ = nullptr;
-    parent_ = nullptr;
-    color = Color::RED;
-  }
-
-  TreeNode *next_node() noexcept {
-    TreeNode *node = this;
-    if (node->right_ != nullptr) {
-      node = node->right_;
-      while (node->left_ != nullptr) {
-        node = node->left_;
-      }
-    } else {
-      while (node->parent_ != nullptr && node == node->parent_->right_) {
-        node = node->parent_;
-      }
-      node = node->parent_;
-    }
-    return node;
-  }
-
-  TreeNode *prev_node() noexcept {
-    TreeNode *node = this;
-    if (node->left_ != nullptr) {
-      node = node->left_;
-      while (node->right_ != nullptr) {
-        node = node->right_;
-      }
-    } else {
-      while (node->parent_ != nullptr && node == node->parent_->left_) {
-        node = node->parent_;
-      }
-      node = node->parent_;
-    }
-    return node;
-  }
-};
-
-template <typename Key, typename Value>
-struct RedBlackTree<Key, Value>::TreeIterator {
-  using iterator_category = std::forward_iterator_tag;
-  using difference_type = std::ptrdiff_t;
-  using value_type = Key;
-  using pointer = value_type *;
-  using reference = value_type &;
-
-  TreeIterator() = delete;
-
-  explicit TreeIterator(TreeNode *node) : node_(node) {}
-
-  reference operator*() const noexcept {
-    return node_->key;
-  }
-
-  TreeIterator &operator++() noexcept {
-    node_ = node_->next_node();
-    return *this;
-  }
-
-  TreeIterator operator++(int) noexcept {
-    TreeIterator tmp{node_};
-    ++(*this);
-    return tmp;
-  }
-
-  TreeIterator &operator--() noexcept {
-    node_ = node_->prev_node();
-    return *this;
-  }
-
-  TreeIterator operator--(int) noexcept {
-    TreeIterator tmp{node_};
-    --(*this);
-    return tmp;
-  }
-
-  bool operator==(const TreeIterator &other) const noexcept {
-    return node_ == other.node_;
-  }
-
-  bool operator!=(const TreeIterator &other) const noexcept {
-    return node_ != other.node_;
-  }
-
-  TreeNode *node_;
-};
-
-template <typename Key, typename Value>
-struct RedBlackTree<Key, Value>::TreeIteratorConst {
-  using iterator_category = std::forward_iterator_tag;
-  using difference_type = std::ptrdiff_t;
-  using value_type = Key;
-  using pointer = const value_type *;
-  using reference = const value_type &;
-
-  TreeIteratorConst() = delete;
-
-  explicit TreeIteratorConst(const TreeNode *node) : node_(node) {}
-
-  TreeIteratorConst(const TreeIteratorConst &it) : node_(it.node_) {}
-
-  reference operator*() const noexcept {
-    return node_->key;
-  }
-
-  TreeIteratorConst &operator++() noexcept {
-    node_ = node_->next_node();
-    return *this;
-  }
-
-  TreeIteratorConst operator++(int) noexcept {
-    TreeIteratorConst tmp{node_};
-    ++(*this);
-    return tmp;
-  }
-
-  TreeIteratorConst &operator--() noexcept {
-    node_ = node_->prev_node();
-    return *this;
-  }
-
-  TreeIteratorConst operator--(int) noexcept {
-    TreeIteratorConst tmp{node_};
-    --(*this);
-    return tmp;
-  }
-
-  friend bool operator==(const TreeIteratorConst &it1,
-                         const TreeIteratorConst &it2) noexcept {
-    return it1.node_ == it2.node_;
-  }
-
-  friend bool operator!=(const TreeIteratorConst &it1,
-                         const TreeIteratorConst &it2) noexcept {
-    return it1.node_ != it2.node_;
-  }
-
-  const TreeNode *node_;
-};
-
-
 } // namespace s21
+
+#endif

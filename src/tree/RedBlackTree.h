@@ -11,9 +11,67 @@ enum Color { RED, BLACK };
 
 template <typename Key, typename Value = std::less<Key>> class RedBlackTree {
 private:
-  struct TreeNode;
   struct TreeIterator;
   struct TreeIteratorConst;
+  struct TreeNode {
+    Key key;
+    Value value;
+    Color color;
+    TreeNode *parent_;
+    TreeNode *left_;
+    TreeNode *right_;
+
+    explicit TreeNode(const Key &key)
+        : key(key), color(Color::RED), parent_(nullptr), left_(nullptr),
+          right_(nullptr) {}
+
+    explicit TreeNode(Key &&key)
+        : key(std::move(key)), color(Color::RED), parent_(nullptr),
+          left_(nullptr), right_(nullptr) {}
+
+    TreeNode(const Key &key, Color color)
+        : key(key), color(color), parent_(nullptr), left_(nullptr),
+          right_(nullptr) {}
+
+    void to_default() noexcept {
+      left_ = nullptr;
+      right_ = nullptr;
+      parent_ = nullptr;
+      color = Color::RED;
+    }
+
+    TreeNode *next_node() noexcept {
+      TreeNode *node = this;
+      if (node->right_ != nullptr) {
+        node = node->right_;
+        while (node->left_ != nullptr) {
+          node = node->left_;
+        }
+      } else {
+        while (node->parent_ != nullptr && node == node->parent_->right_) {
+          node = node->parent_;
+        }
+        node = node->parent_;
+      }
+      return node;
+    }
+
+    TreeNode *prev_node() noexcept {
+      TreeNode *node = this;
+      if (node->left_ != nullptr) {
+        node = node->left_;
+        while (node->right_ != nullptr) {
+          node = node->right_;
+        }
+      } else {
+        while (node->parent_ != nullptr && node == node->parent_->left_) {
+          node = node->parent_;
+        }
+        node = node->parent_;
+      }
+      return node;
+    }
+  };
 
 public:
   using key_type = Key;
@@ -56,7 +114,7 @@ public:
   void clear() noexcept;
   size_type size() const noexcept;
   bool empty() const noexcept;
-  size_type MaxSize() const noexcept;
+  size_type maxSize() const noexcept;
   iterator cBegin() noexcept;
   const_iterator cBegin() const noexcept;
   iterator cEnd() noexcept;
@@ -91,7 +149,7 @@ private:
   void eraseBalancing(TreeNode *deleted_node) noexcept;
   TreeNode *searchMinimum(TreeNode *node) const noexcept;
   TreeNode *searchMaximum(TreeNode *node) const noexcept;
-  int computeBlackHeight(const TreeNode *node) const noexcept;
+  [[maybe_unused]] int computeBlackHeight(const TreeNode *node) const noexcept;
   bool checkRedNodes(const TreeNode *Node) const noexcept;
 
   struct TreeNode;
@@ -103,8 +161,6 @@ private:
   Value key_comparator_;
 };
 
-#include "RedBlackTree.tpp"
-
 } // namespace s21
-
+#include "RedBlackTree.tpp"
 #endif
