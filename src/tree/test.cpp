@@ -1,62 +1,169 @@
-#include "s21_tree.h"
+#include "../tree/RedBlackTree.h"
 #include <gtest/gtest.h>
 
-namespace s21 {
+TEST(RedBlackTreeTest, InsertAndSize) {
+  s21::RedBlackTree<int> tree;
+  EXPECT_TRUE(tree.Empty());
+  EXPECT_EQ(tree.Size(), 0);
+  tree.Insert(5);
+  EXPECT_FALSE(tree.Empty());
+  EXPECT_EQ(tree.Size(), 1);
 
-class RedBlackTreeTest : public ::testing::Test {
-protected:
-  using Tree = RedBlackTree<int>; // Предполагается, что ваш класс дерева называется RedBlackTree и работает с int.
-  Tree tree;
+  tree.Insert(10);
+  EXPECT_EQ(tree.Size(), 2);
+}
 
-  void SetUp() override {
-    // Инициализация дерева, если требуется.
+TEST(RedBlackTreeTest, FindAndErase) {
+  s21::RedBlackTree<int> tree;
+  tree.Insert(5);
+  tree.Insert(10);
+
+  auto it = tree.Find(5);
+  EXPECT_NE(it, tree.End());
+  EXPECT_EQ(*it, 5);
+
+  tree.Erase(it);
+  EXPECT_EQ(tree.Size(), 1);
+  it = tree.Find(5);
+  EXPECT_EQ(it, tree.End());
+}
+
+
+TEST(RedBlackTreeTest, MergeTrees) {
+  s21::RedBlackTree<int> tree1;
+  tree1.Insert(5);
+  tree1.Insert(10);
+
+  s21::RedBlackTree<int> tree2;
+  tree2.Insert(15);
+  tree2.Insert(20);
+
+  tree1.Merge(tree2);
+
+  EXPECT_EQ(tree1.Size(), 4);
+  EXPECT_EQ(tree2.Size(), 0);
+}
+
+TEST(RedBlackTreeTest, UpperBoundCheck) {
+  s21::RedBlackTree<int> tree;
+  tree.Insert(5);
+  tree.Insert(10);
+  tree.Insert(15);
+
+  auto it = tree.UpperBound(7);
+  EXPECT_NE(it, tree.End());
+  EXPECT_EQ(*it, 10);
+}
+
+TEST(RedBlackTreeTest, ClearTree) {
+  s21::RedBlackTree<int> tree;
+  tree.Insert(5);
+  tree.Insert(10);
+  tree.Insert(15);
+
+  EXPECT_EQ(tree.Size(), 3);
+  tree.Clear();
+  EXPECT_TRUE(tree.Empty());
+  EXPECT_EQ(tree.Size(), 0);
+}
+
+TEST(RedBlackTreeTest, InsertDuplicateKeys) {
+  s21::RedBlackTree<int> tree;
+  tree.Insert(5);
+  tree.Insert(5);
+  tree.Insert(5);
+  EXPECT_EQ(tree.Size(), 3);
+}
+
+TEST(RedBlackTreeTest, ReverseOrderIteration) {
+  s21::RedBlackTree<int> tree;
+  for (int i = 9; i >= 0; --i) {
+    tree.Insert(i);
   }
-};
 
-TEST_F(RedBlackTreeTest, InsertNode) {
-  tree.Insert(5);
-  tree.Insert(3);
-  tree.Insert(7);
-
-  // Проверяем корректное расположение элементов
-  EXPECT_EQ(tree.SearchMinimum(tree.Root())->key_, 3);
-  EXPECT_EQ(tree.SearchMaximum(tree.Root())->key_, 7);
+  int expectedValue = 0;
+  for (auto it = tree.Begin(); it != tree.End(); ++it) {
+    EXPECT_EQ(*it, expectedValue);
+    ++expectedValue;
+  }
 }
 
-TEST_F(RedBlackTreeTest, ExtractNode) {
-  tree.Insert(5);
-  tree.Insert(3);
-  tree.Insert(7);
-  auto node = tree.ExtractNode(tree.Find(3)); // Предполагается, что метод Find возвращает итератор.
 
-  // Проверяем, что узел действительно извлечен
-  EXPECT_EQ(node->key_, 3);
-  EXPECT_EQ(tree.SearchMinimum(tree.Root())->key_, 5);
+TEST(RedBlackTreeTest, LowerBoundCheck) {
+  s21::RedBlackTree<int> tree;
+  tree.Insert(5);
+  tree.Insert(10);
+  tree.Insert(15);
+
+  auto it = tree.LowerBound(7);
+  EXPECT_NE(it, tree.End());
+  EXPECT_EQ(*it, 10);
+
+  it = tree.LowerBound(5);
+  EXPECT_EQ(*it, 5);
 }
 
-TEST_F(RedBlackTreeTest, BlackHeightBalance) {
-  tree.Insert(5);
-  tree.Insert(3);
-  tree.Insert(7);
-  tree.Insert(1);
-  tree.Insert(9);
 
-  // Проверяем корректный баланс черных узлов
-  EXPECT_GE(tree.ComputeBlackHeight(tree.Root()), 0);
+
+TEST(RedBlackTreeTest, EraseAndBalance) {
+  s21::RedBlackTree<int> tree;
+  tree.Insert(5);
+  tree.Insert(10);
+  tree.Insert(15);
+  tree.Insert(20);
+  tree.Insert(25);
+
+  auto it = tree.Find(15);
+  tree.Erase(it);
+
+  EXPECT_EQ(tree.Size(), 4);
+  EXPECT_EQ(*tree.Find(5), 5);
+  EXPECT_EQ(*tree.Find(10), 10);
+  EXPECT_EQ(*tree.Find(20), 20);
+  EXPECT_EQ(*tree.Find(25), 25);
+  it = tree.Find(15);
+  EXPECT_EQ(it, tree.End());
+}
+TEST(RedBlackTreeTest, CopyConstructor) {
+  s21::RedBlackTree<int> original;
+  original.Insert(5);
+  original.Insert(10);
+  original.Insert(15);
+
+  s21::RedBlackTree<int> copy = original;
+
+  EXPECT_EQ(copy.Size(), 3);
+  EXPECT_EQ(*copy.Find(5), 5);
+  EXPECT_EQ(*copy.Find(10), 10);
+  EXPECT_EQ(*copy.Find(15), 15);
+
+  // Ensure the original is unchanged
+  EXPECT_EQ(original.Size(), 3);
+  EXPECT_EQ(*original.Find(5), 5);
 }
 
-TEST_F(RedBlackTreeTest, RedNodesCheck) {
-  tree.Insert(5);
-  tree.Insert(3);
-  tree.Insert(7);
 
-  // Проверяем, что красные узлы соответствуют правилам
-  EXPECT_TRUE(tree.checkRedNodes(tree.Root()));
+TEST(RedBlackTreeTest, AssignmentOperator) {
+  s21::RedBlackTree<int> original;
+  original.Insert(5);
+  original.Insert(10);
+  original.Insert(15);
+
+  s21::RedBlackTree<int> assigned;
+  assigned = original;
+
+  EXPECT_EQ(assigned.Size(), 3);
+  EXPECT_EQ(*assigned.Find(5), 5);
+  EXPECT_EQ(*assigned.Find(10), 10);
+  EXPECT_EQ(*assigned.Find(15), 15);
+
+  // Ensure the original is unchanged
+  EXPECT_EQ(original.Size(), 3);
+  EXPECT_EQ(*original.Find(5), 5);
 }
-
-} // namespace s21
 
 int main(int argc, char **argv) {
+
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
