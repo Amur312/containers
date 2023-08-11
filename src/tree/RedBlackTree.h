@@ -3,15 +3,16 @@
 
 #include <functional>
 #include <limits>
+#include <stack>
 #include <vector>
 
 namespace s21 {
 
-enum Color{BLACK, RED};
-
+enum Color { BLACK, RED };
 
 template <typename Key, typename Comparator = std::less<Key>>
 class RedBlackTree {
+
 private:
   struct RedBlackTreeNode;
   struct RedBlackTreeIterator;
@@ -24,9 +25,7 @@ public:
   using iterator = RedBlackTreeIterator;
   using const_iterator = RedBlackTreeIteratorConst;
   using size_type = std::size_t;
-
-  
-
+  friend class RedBlackTreeTest_UpdateExtremes_Test;
 
   RedBlackTree() : head_(new RedBlackTreeNode), size_(0U) {}
   RedBlackTree(const RedBlackTree &other);
@@ -47,10 +46,9 @@ public:
   void MergeUnique(RedBlackTree &other);
   iterator Insert(const key_type &key);
   std::pair<iterator, bool> InsertUnique(const key_type &key);
-  template <typename... Args>
-  std::vector<std::pair<iterator, bool>> Emplace(Args &&...args);
-  template <typename... Args>
-  std::vector<std::pair<iterator, bool>> EmplaceUnique(Args &&...args);
+  std::vector<std::pair<iterator, bool>> Emplace(const std::vector<Key> &items);
+  std::vector<std::pair<iterator, bool>>
+  EmplaceUnique(const std::vector<Key> &items);
   iterator Find(const_reference key);
   iterator LowerBound(const_reference key);
   iterator UpperBound(const_reference key);
@@ -59,28 +57,59 @@ public:
   [[nodiscard]] bool CheckTree() const noexcept;
 
 private:
-  bool CheckRedNodesRecursively(const RedBlackTreeNode *Node) const noexcept;
-  int ComputeBlackHeight(const RedBlackTreeNode *node) const noexcept;
-  RedBlackTreeNode *SearchMaximum(RedBlackTreeNode *node) const noexcept;
-  RedBlackTreeNode *SearchMinimum(RedBlackTreeNode *node) const noexcept;
+  RedBlackTreeNode *FindInsertionPoint(RedBlackTreeNode *currentRoot,
+                                       RedBlackTreeNode *newNode,
+                                       bool uniqueOnly,
+                                       RedBlackTreeNode *&parentNode);
+  void LinkNewNode(RedBlackTreeNode *newNode, RedBlackTreeNode *parentNode);
+  void UpdateExtremes(RedBlackTreeNode *newNode);
+  void Rotate(RedBlackTreeNode *targetNode, bool isLeftRotation) noexcept;
+  void ReplaceNodeWithChildIfRequired(RedBlackTreeNode *node);
+  bool IsSingleNodeAndBlack(RedBlackTreeNode *node);
+  void ReplaceNodeWithChild(RedBlackTreeNode *node);
+  bool IsLeafAndBlack(RedBlackTreeNode *node);
+  void AdjustTreeAfterDeletion(RedBlackTreeNode *deletedNode);
+
+  void UpdateParentPointers(RedBlackTreeNode *node,
+                            RedBlackTreeNode *other) noexcept;
+
+  void UpdateRootIfNeeded(RedBlackTreeNode *node,
+                          RedBlackTreeNode *other) noexcept;
+
+  void SwapNodeProperties(RedBlackTreeNode *node,
+                          RedBlackTreeNode *other) noexcept;
+
+  void HandleSiblingRed(RedBlackTreeNode *sibling, RedBlackTreeNode *parent);
+  void HandleSiblingBlack(RedBlackTreeNode *node, RedBlackTreeNode *sibling,
+                          RedBlackTreeNode *parent);
+  void HandleSiblingBlackRed(RedBlackTreeNode *sibling,
+                             RedBlackTreeNode *parent);
+  bool
+  CheckRedNodesRecursively(const RedBlackTreeNode *currentNode) const noexcept;
+  int CalculateBlackNodeHeight(
+      const RedBlackTreeNode *currentNode) const noexcept;
+  RedBlackTreeNode *
+  FindMaximumValueNode(RedBlackTreeNode *currentNode) const noexcept;
+  RedBlackTreeNode *
+  FindMinimumValueNode(RedBlackTreeNode *currentNode) const noexcept;
   void EraseBalancing(RedBlackTreeNode *deleted_node) noexcept;
-  void SwapNodesForErase(RedBlackTreeNode *node, RedBlackTreeNode *other) noexcept;
+  void SwapNodes(RedBlackTreeNode *node, RedBlackTreeNode *other) noexcept;
   void RotateRight(RedBlackTreeNode *node) noexcept;
   RedBlackTreeNode *ExtractNode(iterator pos) noexcept;
   void RotateLeft(RedBlackTreeNode *node) noexcept;
   void CopyTreeFromOther(const RedBlackTree &other);
-  RedBlackTreeNode *CopyTree(const RedBlackTreeNode *node, RedBlackTreeNode *parent);
+  RedBlackTreeNode *CopyTree(const RedBlackTreeNode *GetRoot,
+                             RedBlackTreeNode *parent);
   void Destroy(RedBlackTreeNode *node) noexcept;
   void InitializeHead() noexcept;
-  RedBlackTreeNode *&Root();
-  const RedBlackTreeNode *Root() const;
-  RedBlackTreeNode *&MostLeft();
-  const RedBlackTreeNode *MostLeft() const;
-  RedBlackTreeNode *&MostRight();
-  std::pair<iterator, bool> Insert(RedBlackTreeNode *root, RedBlackTreeNode *new_node,
-                                   bool unique_only);
+  RedBlackTreeNode *&GetRoot();
+  const RedBlackTreeNode *GetRoot() const;
+  RedBlackTreeNode *&GetLeftmostNode();
+  const RedBlackTreeNode *GetLeftmostNode() const;
+  RedBlackTreeNode *&GetRightmostNode();
+  std::pair<iterator, bool>
+  Insert(RedBlackTreeNode *GetRoot, RedBlackTreeNode *new_node, bool unique_only);
   void BalancingInsert(RedBlackTreeNode *node);
-
 
   struct RedBlackTreeNode {
     RedBlackTreeNode()
@@ -105,51 +134,34 @@ private:
       parent_ = nullptr;
       color_ = RED;
     }
-
-    RedBlackTreeNode *NextNode() const noexcept {
-      auto *node = const_cast<RedBlackTreeNode *>(this);
-      if (node->color_ == RED &&
-          (node->parent_ == nullptr || node->parent_->parent_ == node)) {
-        node = node->left_;
-      } else if (node->right_ != nullptr) {
+    RedBlackTreeNode *NextNode() noexcept {
+      auto *node = this;
+      if (node->right_ != nullptr) {
         node = node->right_;
         while (node->left_ != nullptr) {
           node = node->left_;
         }
-      } else {
-        RedBlackTreeNode *parent = node->parent_;
-        while (node == parent->right_) {
-          node = parent;
-          parent = parent->parent_;
-        }
-        if (node->right_ != parent) {
-          node = parent;
-        }
+        return node;
       }
-      return node;
+      while (node->parent_ != nullptr && node == node->parent_->right_) {
+        node = node->parent_;
+      }
+      return node->parent_;
     }
 
-    RedBlackTreeNode *PrevNode() const noexcept {
-      auto *node = const_cast<RedBlackTreeNode *>(this);
-      if (node->color_ == RED &&
-          (node->parent_ == nullptr || node->parent_->parent_ == node)) {
-        node = node->right_;
-      } else if (node->left_ != nullptr) {
+    RedBlackTreeNode *PrevNode() noexcept {
+      auto *node = this;
+      if (node->left_ != nullptr) {
         node = node->left_;
         while (node->right_ != nullptr) {
           node = node->right_;
         }
-      } else {
-        RedBlackTreeNode *parent = node->parent_;
-        while (node == parent->left_) {
-          node = parent;
-          parent = parent->parent_;
-        }
-        if (node->left_ != parent) {
-          node = parent;
-        }
+        return node;
       }
-      return node;
+      while (node->parent_ != nullptr && node == node->parent_->left_) {
+        node = node->parent_;
+      }
+      return node->parent_;
     }
 
     RedBlackTreeNode *parent_;
@@ -209,12 +221,14 @@ private:
     using iterator_category = std::forward_iterator_tag;
     using difference_type = std::ptrdiff_t;
     using value_type = RedBlackTree::key_type;
-    using pointer = const value_type *;
-    using reference = const value_type &;
+    using pointer = value_type *;
+    using reference = value_type &;
+    using iterator = RedBlackTreeIterator;
 
     RedBlackTreeIteratorConst() = delete;
 
-    explicit RedBlackTreeIteratorConst(const RedBlackTreeNode *node) : node_(node) {}
+    explicit RedBlackTreeIteratorConst(const RedBlackTreeNode *node)
+        : node_(node) {}
 
     explicit RedBlackTreeIteratorConst(const iterator &it) : node_(it.node_) {}
 
@@ -256,7 +270,7 @@ private:
   };
 
   RedBlackTreeNode *head_;
-  size_type size_{};
+  size_type size_;
   Comparator keyComparator_;
 };
 
