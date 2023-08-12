@@ -1,9 +1,9 @@
 
 #ifndef CPP2_S21_CONTAINERS_1_SET_H
 #define CPP2_S21_CONTAINERS_1_SET_H
-#include <vector>
-
 #include "../tree/RedBlackTree.h"
+#include <list>
+#include <vector>
 
 namespace s21 {
 template <class Key> class set {
@@ -38,7 +38,14 @@ public:
     *tree_ = std::move(*other.tree_);
     return *this;
   }
+  friend bool operator==(const set &lhs, const set &rhs) {
+    return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()) &&
+           lhs.size() == rhs.size();
+  }
 
+  friend bool operator!=(const set &lhs, const set &rhs) {
+    return !(lhs == rhs);
+  }
   ~set() {
     delete tree_;
     tree_ = nullptr;
@@ -65,6 +72,14 @@ public:
   }
 
   void erase(iterator pos) noexcept { tree_->Erase(pos); }
+  size_type erase(const key_type &key) noexcept {
+    auto it = find(key);
+    if (it != end()) {
+      erase(it);
+      return 1;
+    }
+    return 0;
+  }
 
   void swap(set &other) noexcept { tree_->Swap(*other.tree_); }
 
@@ -74,6 +89,9 @@ public:
 
   const_iterator find(const key_type &key) const noexcept {
     return tree_->Find(key);
+  }
+  size_type count(const key_type &key) const noexcept {
+    return contains(key) ? 1 : 0;
   }
 
   bool contains(const key_type &key) const noexcept {

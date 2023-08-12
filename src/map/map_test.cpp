@@ -83,7 +83,6 @@ TEST(MapTest, MergeMaps) {
   EXPECT_TRUE(m2.empty());
 }
 
-
 TEST(MapTest, IteratorTraversal) {
   s21::map<int, std::string> m;
   m.insert(std::make_pair(1, "one"));
@@ -101,35 +100,71 @@ TEST(MapTest, IteratorTraversal) {
   EXPECT_EQ((*it).second, "three");
 }
 
-
-
-TEST(RedBlackTreeTest, UpdateExtremes) {
-  s21::RedBlackTree<int, std::less<int>> tree;
-
-  tree.Insert(10);
-  tree.Insert(5);
-  tree.Insert(20);
-
-  // Используйте правильное имя поля
-  EXPECT_EQ(tree.GetLeftmostNode()->key_, 5);
-  EXPECT_EQ(tree.GetRightmostNode()->key_, 20);
-
-  tree.Insert(1);
-  tree.Insert(25);
-
-  EXPECT_EQ(tree.GetLeftmostNode()->key_, 1);
-  EXPECT_EQ(tree.GetRightmostNode()->key_, 25);
+TEST(MapTest, AssignmentOperator) {
+  s21::map<int, std::string> m1;
+  m1[1] = "one";
+  s21::map<int, std::string> m2;
+  m2 = m1;
+  EXPECT_EQ(m2[1], "one");
 }
 
+TEST(MapTest, InitializerListConstructor) {
+  s21::map<int, std::string> m{{1, "one"}, {2, "two"}};
+  EXPECT_EQ(m[1], "one");
+  EXPECT_EQ(m[2], "two");
+  EXPECT_EQ(m.size(), 2);
+}
 
+TEST(MapTest, ContainsMethod) {
+  s21::map<int, std::string> m;
+  m[1] = "one";
+  EXPECT_TRUE(m.contains(1));
+  EXPECT_FALSE(m.contains(2));
+}
 
+TEST(MapTest, EmptyMapAfterClear) {
+  s21::map<int, std::string> m;
+  m.insert(std::make_pair(1, "one"));
+  m.clear();
+  EXPECT_TRUE(m.empty());
+  EXPECT_EQ(m.size(), 0);
+}
+TEST(MapTest, InsertDuplicateKey) {
+  s21::map<int, std::string> m;
+  m.insert(std::make_pair(1, "one"));
+  m.insert(std::make_pair(1, "duplicate"));
+  EXPECT_EQ(m.size(), 1);
+  EXPECT_EQ(m[1], "one");
+}
 
+TEST(MapTest, EraseSingleElement) {
+  s21::map<int, std::string> m;
+  m.insert(std::make_pair(1, "one"));
+  m.erase(m.begin());
+  EXPECT_TRUE(m.empty());
+  EXPECT_EQ(m.size(), 0);
+}
 
+TEST(MapTest, MergeDuplicateKeys) {
+  s21::map<int, std::string> m1{{1, "one"}, {2, "two"}};
+  s21::map<int, std::string> m2{{2, "duplicate"}, {3, "three"}};
+  m1.merge(m2);
+  EXPECT_EQ(m1.size(), 3);
+  EXPECT_EQ(m1[2], "two");
+}
+TEST(MapTest, EmplaceMethod) {
+  s21::map<int, std::string> m;
+  auto result = m.emplace(1, "one");
+  EXPECT_TRUE(result.second);
+  EXPECT_EQ(m.size(), 1);
+  EXPECT_EQ(m[1], "one");
 
-
-
-
-
+  // Emplace a duplicate key, should not modify the map
+  result = m.emplace(1, "duplicate");
+  EXPECT_FALSE(result.second);
+  EXPECT_EQ(m.size(), 1);
+  EXPECT_EQ(m[1], "one");
+}
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

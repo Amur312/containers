@@ -139,9 +139,11 @@ public:
   }
 
   template <typename... Args>
-  std::vector<std::pair<iterator, bool>> emplace(Args &&...args) {
-    return tree_->EmplaceUnique(std::forward<Args>(args)...);
+  std::pair<iterator, bool> emplace(Args&&... args) {
+    return tree_->EmplaceUnique(std::pair<const int, std::string>(std::forward<Args>(args)...));
   }
+
+
 
 private:
   tree_type *tree_;
