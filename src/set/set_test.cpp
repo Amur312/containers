@@ -1,5 +1,5 @@
-#include "../tree/RedBlackTree.h"
 #include "s21_set.h"
+#include "../tree/RedBlackTree.h"
 #include <gtest/gtest.h>
 
 TEST(SetTest, DefaultConstructor) {
@@ -191,6 +191,19 @@ TEST(SetTest, EraseByKey) {
 
   EXPECT_EQ(set1.erase(4), 0);
   EXPECT_EQ(set1.count(4), 0);
+}
+
+TEST(SetTest, InsertMany) {
+  s21::set<int> s;
+  std::vector<int> values = {10, 20, 30, 40};
+  size_t inserted_count = s.insert_many(values.begin(), values.end());
+
+  EXPECT_EQ(inserted_count, 4);
+  EXPECT_EQ(s.size(), 4);
+  EXPECT_EQ(*s.find(10), 10);
+  EXPECT_EQ(*s.find(20), 20);
+  EXPECT_EQ(*s.find(30), 30);
+  EXPECT_EQ(*s.find(40), 40);
 }
 
 int main(int argc, char **argv) {

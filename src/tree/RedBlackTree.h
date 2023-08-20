@@ -8,8 +8,7 @@
 
 namespace s21 {
 
-enum RedBlackTreeColor { kBlack, kRed };
-
+enum Color { BLACK, RED };
 template <typename Key, typename Comparator = std::less<Key>>
 class RedBlackTree {
 private:
@@ -25,84 +24,97 @@ public:
   using const_iterator = RedBlackTreeIteratorConst;
   using size_type = std::size_t;
 
-  using tree_type = RedBlackTree;
-  using tree_node = RedBlackTreeNode;
-  using tree_color = RedBlackTreeColor;
-
+  // Конструкторы и деструкторы
   RedBlackTree();
-  RedBlackTree(const tree_type &other);
-  RedBlackTree(tree_type &&other) noexcept;
-  tree_type &operator=(const tree_type &other);
-  tree_type &operator=(tree_type &&other) noexcept;
+  RedBlackTree(const RedBlackTree &other);
+  RedBlackTree(RedBlackTree &&other) noexcept;
+  RedBlackTree &operator=(const RedBlackTree &other);
+  RedBlackTree &operator=(RedBlackTree &&other) noexcept;
   ~RedBlackTree();
 
-  void Clear() noexcept;
-  size_type Size() const noexcept;
-  bool Empty() const noexcept;
-  size_type MaxSize() const noexcept;
-
-  iterator Begin() noexcept;
-  const_iterator Begin() const noexcept;
-  iterator End() noexcept;
-  const_iterator End() const noexcept;
-
-  void Merge(tree_type &other);
-  void MergeUnique(tree_type &other);
-
+  // Основные методы работы с деревом (вставка, поиск, удаление и т.д.)
   iterator Insert(const key_type &key);
   std::pair<iterator, bool> InsertUnique(const key_type &key);
   template <typename... Args>
   std::vector<std::pair<iterator, bool>> Emplace(Args &&...args);
   template <typename... Args>
   std::vector<std::pair<iterator, bool>> EmplaceUnique(Args &&...args);
-
   iterator Find(const_reference key);
   iterator LowerBound(const_reference key);
   iterator UpperBound(const_reference key);
+  void Erase(iterator position) noexcept;
 
-  void Erase(iterator pos) noexcept;
-  void Swap(tree_type &other) noexcept;
-  bool CheckTree() const noexcept;
+  // Методы работы с итераторами
+  iterator Begin() noexcept;
+  const_iterator Begin() const noexcept;
+  iterator End() noexcept;
+  const_iterator End() const noexcept;
+
+  // Вспомогательные методы (очистка, проверка, объединение и т.д.)
+  void Clear() noexcept;
+  [[nodiscard]] size_type Size() const noexcept;
+  [[nodiscard]] bool Empty() const noexcept;
+  [[nodiscard]] size_type MaxSize() const noexcept;
+  void Merge(RedBlackTree &other);
+  void MergeUnique(RedBlackTree &other);
+  void Swap(RedBlackTree &other) noexcept;
+  [[nodiscard]] bool CheckTree() const noexcept;
 
 private:
-  void CopyTreeFromOther(const tree_type &other);
-  tree_node *CopyTree(const tree_node *node, tree_node *parent);
-  void Destroy(tree_node *node) noexcept;
+  // Внутренние методы для работы с узлами и деревом
+  void HandleBlackCases(RedBlackTreeNode *deleted_node);
+  void HandleK2Case(RedBlackTreeNode *deleted_node);
+  void HandleDeletionCases(RedBlackTreeNode *deleted_node);
+  void UpdateParentAndHeadLinks(RedBlackTreeNode *deleted_node);
+  void CopyTreeFromOther(const RedBlackTree &other);
+  RedBlackTreeNode *CopyTree(const RedBlackTreeNode *node,
+                             RedBlackTreeNode *parent);
+  void Destroy(RedBlackTreeNode *node) noexcept;
   void InitializeHead() noexcept;
-
-  tree_node *&Root();
-  const tree_node *Root() const;
-  tree_node *&MostLeft();
-  const tree_node *MostLeft() const;
-  tree_node *&MostRight();
-
-  std::pair<iterator, bool> Insert(tree_node *root, tree_node *new_node,
-                                   bool unique_only);
-  void BalancingInsert(tree_node *node);
-  void RotateRight(tree_node *node) noexcept;
-  void RotateLeft(tree_node *node) noexcept;
-  tree_node *ExtractNode(iterator pos) noexcept;
-  void SwapNodesForErase(tree_node *node, tree_node *other) noexcept;
-  void EraseBalancing(tree_node *deleted_node) noexcept;
-  tree_node *SearchMinimum(tree_node *node) const noexcept;
-  tree_node *SearchMaximum(tree_node *node) const noexcept;
-  int ComputeBlackHeight(const tree_node *node) const noexcept;
-  bool checkRedNodes(const tree_node *Node) const noexcept;
+  void HandleLeftCase(RedBlackTreeNode *node);
+  void HandleRightCase(RedBlackTreeNode *node);
+  void HandleRedUncle(RedBlackTreeNode *parent, RedBlackTreeNode *uncle,
+                      RedBlackTreeNode *gparent);
+  void Rotate(RedBlackTreeNode *node, bool rotateRight) noexcept;
+  std::pair<iterator, bool> Insert(RedBlackTreeNode *root,
+                                   RedBlackTreeNode *newNnode,
+                                   bool check_duplicates);
+  void BalancingInsert(RedBlackTreeNode *node);
+  void RotateRight(RedBlackTreeNode *node) noexcept;
+  void RotateLeft(RedBlackTreeNode *node) noexcept;
+  RedBlackTreeNode *ExtractNode(iterator position) noexcept;
+  void SwapNodes(RedBlackTreeNode *node_a, RedBlackTreeNode *node_b) noexcept;
+  void UpdateParent(RedBlackTreeNode *node, RedBlackTreeNode *newNode) noexcept;
+  void SwapNodesAndUpdateAfterErase(RedBlackTreeNode *node,
+                                    RedBlackTreeNode *survivor) noexcept;
+  void EraseBalancing(RedBlackTreeNode *deleted_node) noexcept;
+  void HandleBlackSiblingWithRedChild(RedBlackTreeNode *parent,
+                                      RedBlackTreeNode *&check_node);
+  void HandleBlackSiblingWithBlackChildren(RedBlackTreeNode *parent,
+                                           RedBlackTreeNode *&check_node);
+  void HandleRedSibling(RedBlackTreeNode *parent,
+                        RedBlackTreeNode *&check_node);
+  RedBlackTreeNode *GoRight(RedBlackTreeNode *node) const noexcept;
+  RedBlackTreeNode *GoLeft(RedBlackTreeNode *node) const noexcept;
+  RedBlackTreeNode *SearchMinimum(RedBlackTreeNode *node) const noexcept;
+  RedBlackTreeNode *SearchMaximum(RedBlackTreeNode *node) const noexcept;
+  int ComputeBlackHeight(const RedBlackTreeNode *node) const noexcept;
+  bool checkRedNodes(const RedBlackTreeNode *Node) const noexcept;
 
   struct RedBlackTreeNode {
     RedBlackTreeNode()
         : parent_(nullptr), left_(this), right_(this), key_(key_type{}),
-          color_(kRed) {}
+          color_(RED) {}
 
-    RedBlackTreeNode(const key_type &key)
+    explicit RedBlackTreeNode(const key_type &key)
         : parent_(nullptr), left_(nullptr), right_(nullptr), key_(key),
-          color_(kRed) {}
+          color_(RED) {}
 
-    RedBlackTreeNode(key_type &&key)
+    explicit RedBlackTreeNode(key_type &&key)
         : parent_(nullptr), left_(nullptr), right_(nullptr),
-          key_(std::move(key)), color_(kRed) {}
+          key_(std::move(key)), color_(RED) {}
 
-    RedBlackTreeNode(key_type key, tree_color color)
+    RedBlackTreeNode(key_type key, Color color)
         : parent_(nullptr), left_(nullptr), right_(nullptr), key_(key),
           color_(color) {}
 
@@ -110,12 +122,12 @@ private:
       left_ = nullptr;
       right_ = nullptr;
       parent_ = nullptr;
-      color_ = kRed;
+      color_ = RED;
     }
 
-    tree_node *NextNode() const noexcept {
-      tree_node *node = const_cast<tree_node *>(this);
-      if (node->color_ == kRed &&
+    RedBlackTreeNode *NextNode() const noexcept {
+      auto *node = const_cast<RedBlackTreeNode *>(this);
+      if (node->color_ == RED &&
           (node->parent_ == nullptr || node->parent_->parent_ == node)) {
         node = node->left_;
       } else if (node->right_ != nullptr) {
@@ -125,7 +137,7 @@ private:
           node = node->left_;
         }
       } else {
-        tree_node *parent = node->parent_;
+        RedBlackTreeNode *parent = node->parent_;
 
         while (node == parent->right_) {
           node = parent;
@@ -139,10 +151,10 @@ private:
       return node;
     }
 
-    tree_node *PrevNode() const noexcept {
-      tree_node *node = const_cast<tree_node *>(this);
+    RedBlackTreeNode *PrevNode() const noexcept {
+      RedBlackTreeNode *node = const_cast<RedBlackTreeNode *>(this);
 
-      if (node->color_ == kRed &&
+      if (node->color_ == RED &&
           (node->parent_ == nullptr || node->parent_->parent_ == node)) {
         node = node->right_;
       } else if (node->left_ != nullptr) {
@@ -151,7 +163,7 @@ private:
           node = node->right_;
         }
       } else {
-        tree_node *parent = node->parent_;
+        RedBlackTreeNode *parent = node->parent_;
         while (node == parent->left_) {
           node = parent;
           parent = parent->parent_;
@@ -163,23 +175,23 @@ private:
 
       return node;
     }
-    tree_node *parent_;
-    tree_node *left_;
-    tree_node *right_;
+    RedBlackTreeNode *parent_;
+    RedBlackTreeNode *left_;
+    RedBlackTreeNode *right_;
     key_type key_;
-    tree_color color_;
+    Color color_;
   };
 
   struct RedBlackTreeIterator {
     using iterator_category = std::forward_iterator_tag;
     using difference_type = std::ptrdiff_t;
-    using value_type = tree_type::key_type;
+    using value_type = RedBlackTree::key_type;
     using pointer = value_type *;
     using reference = value_type &;
 
     RedBlackTreeIterator() = delete;
 
-    explicit RedBlackTreeIterator(tree_node *node) : node_(node) {}
+    explicit RedBlackTreeIterator(RedBlackTreeNode *node) : node_(node) {}
 
     reference operator*() const noexcept { return node_->key_; }
 
@@ -213,19 +225,20 @@ private:
       return node_ != other.node_;
     }
 
-    tree_node *node_;
+    RedBlackTreeNode *node_;
   };
 
   struct RedBlackTreeIteratorConst {
     using iterator_category = std::forward_iterator_tag;
     using difference_type = std::ptrdiff_t;
-    using value_type = tree_type::key_type;
+    using value_type = RedBlackTree::key_type;
     using pointer = const value_type *;
     using reference = const value_type &;
 
     RedBlackTreeIteratorConst() = delete;
 
-    explicit RedBlackTreeIteratorConst(const tree_node *node) : node_(node) {}
+    explicit RedBlackTreeIteratorConst(const RedBlackTreeNode *node)
+        : node_(node) {}
 
     RedBlackTreeIteratorConst(const iterator &it) : node_(it.node_) {}
 
@@ -263,12 +276,12 @@ private:
       return it1.node_ != it2.node_;
     }
 
-    const tree_node *node_;
+    const RedBlackTreeNode *node_;
   };
 
   RedBlackTreeNode *head_;
   size_type size_;
-  Comparator cmp_;
+  Comparator key_comparator_;
 };
 
 } // namespace s21

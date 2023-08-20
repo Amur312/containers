@@ -159,12 +159,57 @@ TEST(MapTest, EmplaceMethod) {
   EXPECT_EQ(m.size(), 1);
   EXPECT_EQ(m[1], "one");
 
-  // Emplace a duplicate key, should not modify the map
   result = m.emplace(1, "duplicate");
   EXPECT_FALSE(result.second);
   EXPECT_EQ(m.size(), 1);
   EXPECT_EQ(m[1], "one");
 }
+
+TEST(MapTest, InsertManyElements) {
+  s21::map<int, std::string> m;
+  std::vector<std::pair<int, std::string>> values = {
+      {1, "one"}, {2, "two"}, {3, "three"}};
+  m.insert_many(values.begin(), values.end());
+  EXPECT_EQ(m.size(), 3);
+  EXPECT_EQ(m[1], "one");
+  EXPECT_EQ(m[2], "two");
+  EXPECT_EQ(m[3], "three");
+}
+
+TEST(MapTest, FindNonExistingKeyWithConstMap) {
+  const s21::map<int, std::string> m{{1, "one"}, {2, "two"}};
+  auto it = m.find(3);
+  EXPECT_EQ(it, m.end());
+}
+TEST(MapTest, CountMethod) {
+  s21::map<int, std::string> m;
+  m.insert(std::make_pair(1, "one"));
+  EXPECT_EQ(m.count(1), 1);
+  EXPECT_EQ(m.count(2), 0);
+}
+TEST(MapTest, EqualityOperator) {
+  s21::map<int, std::string> m1{{1, "one"}, {2, "two"}};
+  s21::map<int, std::string> m2{{1, "one"}, {2, "two"}};
+  s21::map<int, std::string> m3{{1, "one"}, {3, "three"}};
+  EXPECT_TRUE(m1 == m2);
+  EXPECT_FALSE(m1 == m3);
+}
+TEST(MapTest, InequalityOperator) {
+  s21::map<int, std::string> m1{{1, "one"}, {2, "two"}};
+  s21::map<int, std::string> m2{{1, "one"}, {2, "two"}};
+  s21::map<int, std::string> m3{{1, "one"}, {3, "three"}};
+  EXPECT_FALSE(m1 != m2);
+  EXPECT_TRUE(m1 != m3);
+}
+TEST(MapTest, MergeWithoutModifyingOriginal) {
+  s21::map<int, std::string> m1{{1, "one"}, {2, "two"}};
+  s21::map<int, std::string> m2{{3, "three"}};
+  s21::map<int, std::string> m1_copy = m1;
+  m1.merge(m2);
+  EXPECT_EQ(m1.size(), 3);
+  EXPECT_EQ(m1_copy.size(), 2);
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
