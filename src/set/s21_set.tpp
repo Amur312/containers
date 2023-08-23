@@ -9,7 +9,7 @@ namespace s21 {
  *
  * @tparam Key Тип ключа, хранимого в контейнере.
  */
-template <class Key> set<Key>::set() : tree_(new tree_type{}) {}
+template <typename Key> set<Key>::set() : tree_(new tree_type{}) {}
 
 /**
  * @brief Конструктор множества на основе списка инициализации.
@@ -20,7 +20,7 @@ template <class Key> set<Key>::set() : tree_(new tree_type{}) {}
  *
  * @param items Список инициализации элементами для создания множества.
  */
-template <class Key>
+template <typename Key>
 set<Key>::set(std::initializer_list<value_type> const &items) : set() {
   for (auto item : items) {
     // Проверяем, содержится ли элемент уже в множестве
@@ -42,7 +42,7 @@ set<Key>::set(std::initializer_list<value_type> const &items) : set() {
  * @param other Ссылка на другой контейнер типа set, из которого выполняется
  * копирование.
  */
-template <class Key> set<Key>::set(const set &other) : set() {
+template <typename Key> set<Key>::set(const set &other) : set() {
   // Проверка на самоприсваивание
   if (this != &other) {
     // Копирование содержимого дерева из другого контейнера
@@ -60,7 +60,7 @@ template <class Key> set<Key>::set(const set &other) : set() {
  * @tparam Key Тип ключа, хранимого в контейнере.
  * @param other Контейнер, из которого будет перемещено содержимое.
  */
-template <class Key>
+template <typename Key>
 set<Key>::set(set &&other) noexcept
     : tree_(new tree_type(std::move(*other.tree_))) {}
 
@@ -77,7 +77,7 @@ set<Key>::set(set &&other) noexcept
  * @param other Контейнер типа set, из которого копируются элементы.
  * @return Ссылка на текущий экземпляр контейнера после присваивания.
  */
-template <class Key> set<Key> &set<Key>::operator=(const set &other) {
+template <typename Key> set<Key> &set<Key>::operator=(const set &other) {
   // Проверка на self-assignment
   if (this != &other) {
     // Очищаем текущий контейнер
@@ -101,7 +101,7 @@ template <class Key> set<Key> &set<Key>::operator=(const set &other) {
  * @param other Rvalue-контейнер, из которого будет произведено перемещение.
  * @return Ссылка на текущий контейнер после перемещения.
  */
-template <class Key> set<Key> &set<Key>::operator=(set &&other) noexcept {
+template <typename Key> set<Key> &set<Key>::operator=(set &&other) noexcept {
   // Проверяем, что контейнеры не совпадают
   if (this != &other) {
     // Обмениваем внутренние структуры данных между контейнерами
@@ -119,7 +119,7 @@ template <class Key> set<Key> &set<Key>::operator=(set &&other) noexcept {
  *
  * @tparam Key Тип ключа, хранимого в контейнере.
  */
-template <class Key> set<Key>::~set() {
+template <typename Key> set<Key>::~set() {
   // Проверяем, было ли создано дерево
   if (tree_) {
     // Освобождаем память и устанавливаем указатель в nullptr
@@ -138,7 +138,7 @@ template <class Key> set<Key>::~set() {
  * @tparam Key Тип ключа, хранимого в контейнере.
  * @return Итератор, указывающий на начало контейнера.
  */
-template <class Key> typename set<Key>::iterator set<Key>::begin() noexcept {
+template <typename Key> typename set<Key>::iterator set<Key>::begin() noexcept {
   return tree_->Begin();
 }
 
@@ -152,7 +152,7 @@ template <class Key> typename set<Key>::iterator set<Key>::begin() noexcept {
  * @tparam Key Тип ключа, хранимого в контейнере.
  * @return Константный итератор, указывающий на начало контейнера.
  */
-template <class Key>
+template <typename Key>
 typename set<Key>::const_iterator set<Key>::begin() const noexcept {
   return tree_->Begin();
 }
@@ -167,7 +167,7 @@ typename set<Key>::const_iterator set<Key>::begin() const noexcept {
  * @tparam Key Тип ключа, хранимого в контейнере.
  * @return Итератор, указывающий на конец контейнера.
  */
-template <class Key> typename set<Key>::iterator set<Key>::end() noexcept {
+template <typename Key> typename set<Key>::iterator set<Key>::end() noexcept {
   return tree_->End();
 }
 
@@ -182,7 +182,7 @@ template <class Key> typename set<Key>::iterator set<Key>::end() noexcept {
  * @tparam Key Тип ключа, хранимого в контейнере.
  * @return Константный итератор, указывающий на конец контейнера.
  */
-template <class Key>
+template <typename Key>
 typename set<Key>::const_iterator set<Key>::end() const noexcept {
   return tree_->End();
 }
@@ -196,7 +196,7 @@ typename set<Key>::const_iterator set<Key>::end() const noexcept {
  *
  * @return `true`, если контейнер пуст, `false` в противном случае.
  */
-template <class Key> inline bool set<Key>::empty() const noexcept {
+template <typename Key> inline bool set<Key>::empty() const noexcept {
   // Проверка, существует ли внутренняя структура данных
   // Если она существует, используем метод Empty() для определения пустоты
   // Если она не существует, считаем, что контейнер пуст
@@ -215,7 +215,7 @@ template <class Key> inline bool set<Key>::empty() const noexcept {
  * @tparam Key Тип ключа, хранимого в контейнере.
  * @return Текущий размер контейнера.
  */
-template <class Key>
+template <typename Key>
 inline typename set<Key>::size_type set<Key>::size() const noexcept {
   // Проверяем, инициализирована ли внутренняя структура данных
   return tree_ ? tree_->Size() : 0;
@@ -233,7 +233,7 @@ inline typename set<Key>::size_type set<Key>::size() const noexcept {
  * @tparam Key Тип ключа, хранимого в контейнере.
  * @return Максимальное количество элементов, которое контейнер может содержать.
  */
-template <class Key>
+template <typename Key>
 typename set<Key>::size_type set<Key>::max_size() const noexcept {
   if (tree_) {
     // Возвращаем максимальное количество элементов из дерева
@@ -254,7 +254,7 @@ typename set<Key>::size_type set<Key>::max_size() const noexcept {
  *
  * @tparam Key Тип ключа, хранимого в контейнере.
  */
-template <class Key> void set<Key>::clear() noexcept {
+template <typename Key> void set<Key>::clear() noexcept {
   // Освобождение памяти, занимаемой текущим деревом
   delete tree_;
   // Создание нового пустого дерева
@@ -275,7 +275,7 @@ template <class Key> void set<Key>::clear() noexcept {
  * @return Пара, содержащая итератор на вставленный элемент и флаг успешности
  * вставки.
  */
-template <class Key>
+template <typename Key>
 std::pair<typename set<Key>::iterator, bool>
 set<Key>::insert(const value_type &value) {
   // Вызов метода вставки с условием уникальности из внутреннего дерева
@@ -292,7 +292,7 @@ set<Key>::insert(const value_type &value) {
  * @tparam Key Тип ключа, хранимого в контейнере.
  * @param position Итератор, указывающий на позицию удаляемого элемента.
  */
-template <class Key> void set<Key>::erase(iterator position) noexcept {
+template <typename Key> void set<Key>::erase(iterator position) noexcept {
   // Проверка, является ли позиция итератором, указывающим за конец
   if (position == end()) {
     return; // Просто завершаем метод, не выполняя никаких действий
@@ -313,7 +313,7 @@ template <class Key> void set<Key>::erase(iterator position) noexcept {
  * @param key Ключ элемента, который нужно удалить.
  * @return Количество удаленных элементов (0 или 1).
  */
-template <class Key>
+template <typename Key>
 typename set<Key>::size_type set<Key>::erase(const key_type &key) noexcept {
   // Поиск элемента по ключу
   auto it = find(key);
@@ -334,7 +334,7 @@ typename set<Key>::size_type set<Key>::erase(const key_type &key) noexcept {
  * @tparam Key Тип ключа, хранимого в контейнере.
  * @param other Контейнер, с которым происходит обмен содержимым.
  */
-template <class Key> void set<Key>::swap(set &other) noexcept {
+template <typename Key> void set<Key>::swap(set &other) noexcept {
   tree_->Swap(*other.tree_);
 }
 
@@ -349,7 +349,7 @@ template <class Key> void set<Key>::swap(set &other) noexcept {
  * @tparam Key Тип ключа, хранимого в контейнере.
  * @param other Другой контейнер, с которым выполняется объединение.
  */
-template <class Key> void set<Key>::merge(set &other) noexcept {
+template <typename Key> void set<Key>::merge(set &other) noexcept {
   // Проверка на самоприсваивание, чтобы избежать некорректной операции
   if (this == &other) {
     return; // Ничего не делаем при самоприсваивании
@@ -376,7 +376,7 @@ template <class Key> void set<Key>::merge(set &other) noexcept {
  * @return Итератор на найденный элемент, либо итератор, указывающий за конец,
  * если элемент не найден или контейнер пуст.
  */
-template <class Key>
+template <typename Key>
 typename set<Key>::iterator set<Key>::find(const key_type &key) noexcept {
   // Проверяем, существует ли внутренний объект-структура данных
   if (!tree_) {
@@ -401,7 +401,7 @@ typename set<Key>::iterator set<Key>::find(const key_type &key) noexcept {
  * @return Константный итератор на найденный элемент, либо константный
  * итератор, указывающий за конец, если элемент не найден или контейнер пуст.
  */
-template <class Key>
+template <typename Key>
 typename set<Key>::const_iterator
 set<Key>::find(const key_type &key) const noexcept {
   // Проверяем, существует ли внутренний объект-структура данных
@@ -425,7 +425,7 @@ set<Key>::find(const key_type &key) const noexcept {
  * @param key Ключ, для которого требуется подсчитать количество вхождений.
  * @return Количество вхождений элемента с заданным ключом.
  */
-template <class Key>
+template <typename Key>
 typename set<Key>::size_type
 set<Key>::count(const key_type &key) const noexcept {
   // Проверяем, содержит ли контейнер элемент с заданным ключом
@@ -444,7 +444,7 @@ set<Key>::count(const key_type &key) const noexcept {
  * @return True, если элемент с указанным ключом найден в контейнере, иначе
  * false.
  */
-template <class Key>
+template <typename Key>
 bool set<Key>::contains(const key_type &key) const noexcept {
   // Получаем итератор, указывающий на конец контейнера
   auto end = tree_->End();
@@ -467,7 +467,7 @@ bool set<Key>::contains(const key_type &key) const noexcept {
  * @return Вектор пар итератор-булево, содержащий результаты вставки каждого
  * элемента.
  */
-template <class Key>
+template <typename Key>
 template <typename... Args>
 std::vector<std::pair<typename set<Key>::iterator, bool>>
 set<Key>::emplace(Args &&...args) {
@@ -492,7 +492,7 @@ set<Key>::emplace(Args &&...args) {
  * диапазона.
  * @return Количество успешно вставленных элементов.
  */
-template <class Key>
+template <typename Key>
 template <typename InputIt>
 typename set<Key>::size_type set<Key>::insert_many(InputIt first,
                                                    InputIt last) noexcept {

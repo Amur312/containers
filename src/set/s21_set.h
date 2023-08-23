@@ -6,7 +6,7 @@
 #include <vector>
 
 namespace s21 {
-template <class Key> class set {
+template <typename Key> class set {
 public:
   using key_type = Key;
   using value_type = key_type;

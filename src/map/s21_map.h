@@ -6,7 +6,7 @@
 
 
 namespace s21 {
-template <class Key, class Type> class map {
+template <typename Key, typename Type> class map {
 public:
   // Типы данных
   using key_type = Key;

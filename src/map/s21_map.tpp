@@ -11,7 +11,7 @@ namespace s21 {
  * Создает фиктивный узел head_ и связанные с ним указатели,
  * чтобы обеспечить пустое дерево.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 map<Key, Type>::map() : tree_(new tree_type{}) {}
 /**
  * @brief Конструктор инициализации на основе списка значений.
@@ -22,7 +22,7 @@ map<Key, Type>::map() : tree_(new tree_type{}) {}
  *
  * @param items Список значений для инициализации дерева.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 map<Key, Type>::map(std::initializer_list<value_type> const &items) : map() {
   for (const auto &item : items) {
     insert(item);
@@ -36,7 +36,7 @@ map<Key, Type>::map(std::initializer_list<value_type> const &items) : map() {
  *
  * @param otherMap Другой объект map, из которого будет скопировано дерево.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 map<Key, Type>::map(const map &otherMap)
     : tree_(new tree_type(*otherMap.tree_)) {}
 
@@ -48,7 +48,7 @@ map<Key, Type>::map(const map &otherMap)
  *
  * @param otherMap Другой объект map, из которого будет перемещено дерево.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 map<Key, Type>::map(map &&otherMap) noexcept
     : tree_(new tree_type(std::move(*otherMap.tree_))) {}
 
@@ -61,7 +61,7 @@ map<Key, Type>::map(map &&otherMap) noexcept
  * @param otherMap Карта, содержимое которой будет скопировано.
  * @return Ссылка на текущую карту после присваивания.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 map<Key, Type> &map<Key, Type>::operator=(const map &otherMap) {
   if (this != &otherMap) {
     auto *copiedTree = new tree_type(*otherMap.tree_);
@@ -81,7 +81,7 @@ map<Key, Type> &map<Key, Type>::operator=(const map &otherMap) {
  * @param otherMap Карта, содержимое которой будет перемещено.
  * @return Ссылка на текущую карту после перемещающего присваивания.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 map<Key, Type> &map<Key, Type>::operator=(map &&otherMap) noexcept {
   if (this != &otherMap) {
     std::swap(tree_, otherMap.tree_);
@@ -98,7 +98,7 @@ map<Key, Type> &map<Key, Type>::operator=(map &&otherMap) noexcept {
  * @param otherMap Другая карта, с которой производится сравнение.
  * @return true, если карты равны, иначе false.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 inline bool map<Key, Type>::operator==(const map &otherMap) const {
   if (this == &otherMap)
     return true;
@@ -122,7 +122,7 @@ inline bool map<Key, Type>::operator==(const map &otherMap) const {
  * @param other Другая карта, с которой выполняется сравнение.
  * @return `true`, если карты не равны, иначе `false`.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 bool map<Key, Type>::operator!=(const map &otherMap) const {
   return !(*this == otherMap);
 }
@@ -133,7 +133,7 @@ bool map<Key, Type>::operator!=(const map &otherMap) const {
  * Освобождает память, занимаемую деревом карты.
  * Этот метод вызывается при уничтожении объекта карты.
  */
-template <class Key, class Type> map<Key, Type>::~map() { delete tree_; }
+template <typename Key, typename Type> map<Key, Type>::~map() { delete tree_; }
 
 /**
  * @brief Получение значения элемента по ключу с проверкой на наличие.
@@ -145,7 +145,7 @@ template <class Key, class Type> map<Key, Type>::~map() { delete tree_; }
  * @return Ссылка на значение элемента.
  * @throws std::out_of_range Если ключ отсутствует в карте.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 typename map<Key, Type>::mapped_type &map<Key, Type>::at(const key_type &key) {
   iterator searchIterator = tree_->Find(value_type(key, mapped_type{}));
 
@@ -169,7 +169,7 @@ typename map<Key, Type>::mapped_type &map<Key, Type>::at(const key_type &key) {
  * @return Ссылка на константное значение элемента.
  * @throws std::out_of_range Если ключ отсутствует в карте.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 const typename map<Key, Type>::mapped_type &
 map<Key, Type>::at(const key_type &key) const {
   const_iterator searchIterator = tree_->Find(value_type(key, mapped_type{}));
@@ -193,7 +193,7 @@ map<Key, Type>::at(const key_type &key) const {
  * @param key Ключ элемента, значение которого необходимо получить или добавить.
  * @return Ссылка на значение элемента.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 typename map<Key, Type>::mapped_type &
 map<Key, Type>::operator[](const key_type &key) {
   // Создание временного значения для поиска элемента по ключу
@@ -221,7 +221,7 @@ map<Key, Type>::operator[](const key_type &key) {
  *
  * @return Итератор, указывающий на начало контейнера.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 typename map<Key, Type>::iterator map<Key, Type>::begin() noexcept {
   return tree_->Begin();
 }
@@ -233,7 +233,7 @@ typename map<Key, Type>::iterator map<Key, Type>::begin() noexcept {
  *
  * @return Константный итератор, указывающий на начало контейнера.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 typename map<Key, Type>::const_iterator map<Key, Type>::begin() const noexcept {
   return tree_->Begin();
 }
@@ -246,7 +246,7 @@ typename map<Key, Type>::const_iterator map<Key, Type>::begin() const noexcept {
  *
  * @return Итератор, указывающий на конец контейнера.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 typename map<Key, Type>::iterator map<Key, Type>::end() noexcept {
   return tree_->End();
 }
@@ -259,7 +259,7 @@ typename map<Key, Type>::iterator map<Key, Type>::end() noexcept {
  *
  * @return Константный итератор, указывающий на конец контейнера.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 typename map<Key, Type>::const_iterator map<Key, Type>::end() const noexcept {
   return tree_->End();
 }
@@ -271,7 +271,7 @@ typename map<Key, Type>::const_iterator map<Key, Type>::end() const noexcept {
  *
  * @return true, если контейнер пуст, иначе false.
  */
-template <class Key, class Type> bool map<Key, Type>::empty() const noexcept {
+template <typename Key, typename Type> bool map<Key, Type>::empty() const noexcept {
   return tree_->Empty();
 }
 
@@ -282,7 +282,7 @@ template <class Key, class Type> bool map<Key, Type>::empty() const noexcept {
  *
  * @return Количество элементов в контейнере.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 typename map<Key, Type>::size_type map<Key, Type>::size() const noexcept {
   return tree_->Size();
 }
@@ -295,7 +295,7 @@ typename map<Key, Type>::size_type map<Key, Type>::size() const noexcept {
  *
  * @return Максимальное количество элементов в контейнере.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 typename map<Key, Type>::size_type map<Key, Type>::max_size() const noexcept {
   return tree_->MaxSize();
 }
@@ -305,7 +305,7 @@ typename map<Key, Type>::size_type map<Key, Type>::max_size() const noexcept {
  *
  * Удаляет все элементы, содержащиеся в контейнере, оставляя его пустым.
  */
-template <class Key, class Type> void map<Key, Type>::clear() noexcept {
+template <typename Key, typename Type> void map<Key, Type>::clear() noexcept {
   tree_->Clear();
 }
 /**
@@ -320,7 +320,7 @@ template <class Key, class Type> void map<Key, Type>::clear() noexcept {
  * @param element_to_insert Значение элемента, которое необходимо вставить.
  * @return Пара, содержащая итератор на элемент и флаг успешности вставки.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 std::pair<typename map<Key, Type>::iterator, bool>
 map<Key, Type>::insert(const value_type &element_to_insert) {
   return tree_->InsertUnique(element_to_insert);
@@ -339,7 +339,7 @@ map<Key, Type>::insert(const value_type &element_to_insert) {
  * @param value Значение элемента, которое необходимо вставить.
  * @return Пара, содержащая итератор на элемент и флаг успешности вставки.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 std::pair<typename map<Key, Type>::iterator, bool>
 map<Key, Type>::insert(const key_type &key, const mapped_type &value) {
   return tree_->InsertUnique(value_type{key, value});
@@ -356,7 +356,7 @@ map<Key, Type>::insert(const key_type &key, const mapped_type &value) {
  * @param value Значение элемента, которое необходимо вставить или установить.
  * @return Пара, содержащая итератор на элемент и флаг успешности операции.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 std::pair<typename map<Key, Type>::iterator, bool>
 map<Key, Type>::insert_or_assign(const key_type &key,
                                  const mapped_type &value) {
@@ -376,7 +376,7 @@ map<Key, Type>::insert_or_assign(const key_type &key,
  *
  * @param pos Итератор, указывающий на элемент, который необходимо удалить.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 void map<Key, Type>::erase(iterator pos) noexcept {
   tree_->Erase(pos);
 }
@@ -388,7 +388,7 @@ void map<Key, Type>::erase(iterator pos) noexcept {
  *
  * @param other Карта, с которой необходимо обменять содержимое.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 void map<Key, Type>::swap(map &other) noexcept {
   tree_->Swap(*other.tree_);
 }
@@ -401,7 +401,7 @@ void map<Key, Type>::swap(map &other) noexcept {
  *
  * @param other Карта, с которой необходимо объединить текущую карту.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 void map<Key, Type>::merge(map &other) noexcept {
   tree_->MergeUnique(*other.tree_);
 }
@@ -415,7 +415,7 @@ void map<Key, Type>::merge(map &other) noexcept {
  * @param key Ключ, который нужно проверить на наличие в карте.
  * @return true, если элемент с данным ключом существует, иначе false.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 bool map<Key, Type>::contains(const key_type &key) const noexcept {
   // Создаем временную пару ключ-значение с заданным ключом и пустым значением
   value_type keyValuePair(key, mapped_type{});
@@ -440,7 +440,7 @@ bool map<Key, Type>::contains(const key_type &key) const noexcept {
  * @return Пара, содержащая итератор на вставленный элемент и флаг успешности
  * вставки.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 template <typename... Args>
 std::pair<typename map<Key, Type>::iterator, bool>
 map<Key, Type>::emplace(Args &&...args) {
@@ -472,7 +472,7 @@ map<Key, Type>::emplace(Args &&...args) {
  * @param first Итератор, указывающий на начало диапазона элементов для вставки.
  * @param last Итератор, указывающий на конец диапазона элементов для вставки.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 template <typename InputIt>
 void map<Key, Type>::insert_many(InputIt first, InputIt last) {
   // Проходим по диапазону элементов, вызывая метод вставки для каждого элемента
@@ -491,7 +491,7 @@ void map<Key, Type>::insert_many(InputIt first, InputIt last) {
  * @return Итератор на найденный элемент, либо итератор, указывающий за конец,
  * если элемент не найден.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 typename map<Key, Type>::iterator
 map<Key, Type>::find(const key_type &key) noexcept {
   // Создаем временную пару ключ-значение с заданным ключом и пустым значением
@@ -512,7 +512,7 @@ map<Key, Type>::find(const key_type &key) noexcept {
  * @return Константный итератор на найденный элемент, либо константный итератор,
  *         указывающий за конец, если элемент не найден.
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 typename map<Key, Type>::const_iterator
 map<Key, Type>::find(const key_type &key) const noexcept {
   // Создаем временную пару ключ-значение с заданным ключом и пустым значением
@@ -532,7 +532,7 @@ map<Key, Type>::find(const key_type &key) const noexcept {
  * @param key Ключ, для которого нужно подсчитать количество элементов.
  * @return Количество элементов с заданным ключом (0 или 1).
  */
-template <class Key, class Type>
+template <typename Key, typename Type>
 typename map<Key, Type>::size_type
 map<Key, Type>::count(const key_type &key) const noexcept {
   // Используем метод поиска для определения наличия элемента с заданным ключом
